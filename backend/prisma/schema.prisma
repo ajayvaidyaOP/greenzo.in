@@ -1,0 +1,175 @@
+// Greenzo.in — Full-Stack Relational Schema (MySQL / SQLite parity)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String   @unique
+  phone          String   @default("")
+  passwordHash   String   @map("password_hash")
+  role           String   @default("CUSTOMER")
+  defaultAddress String   @default("") @map("default_address")
+  defaultCity    String   @default("Pune") @map("default_city")
+  defaultPincode String   @default("411001") @map("default_pincode")
+  createdAt      DateTime @default(now()) @map("created_at")
+  orders         Order[]
+
+  @@map("users")
+}
+
+model StoreSetting {
+  settingKey   String @id @map("setting_key")
+  settingValue String @map("setting_value") @db.Text
+
+  @@map("store_settings")
+}
+
+model Coupon {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  type         String   @default("percent")
+  value        Int
+  minSubtotal  Int      @default(0) @map("min_subtotal")
+  label        String
+  description  String   @default("")
+  isActive     Boolean  @default(true) @map("is_active")
+  showInBanner Boolean  @default(false) @map("show_in_banner")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("coupons")
+}
+
+model GalleryPhoto {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String   @map("image_url")
+  caption   String
+  spanClass String   @default("") @map("span_class")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("gallery_photos")
+}
+
+model Category {
+  id             Int       @id @default(autoincrement())
+  slug           String    @unique
+  name           String
+  subtitle       String
+  accentGradient String    @map("accent_gradient")
+  imageUrl       String    @map("image_url")
+  sortOrder      Int       @default(0) @map("sort_order")
+  products       Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id               Int         @id @default(autoincrement())
+  slug             String      @unique
+  name             String
+  botanicalName    String      @map("botanical_name")
+  categorySlug     String      @map("category_slug")
+  category         Category    @relation(fields: [categorySlug], references: [slug])
+  price            Int
+  maxPrice         Int         @map("max_price")
+  originalPrice    Int         @map("original_price")
+  badge            String?
+  rating           Float       @default(4.9)
+  reviewCount      Int         @default(48) @map("review_count")
+  imageUrl         String      @map("image_url")
+  galleryJson      String      @map("gallery_json") @db.Text
+  shortDescription String      @map("short_description") @db.Text
+  description      String      @db.Text
+  lightLevel       String      @map("light_level")
+  waterSchedule    String      @map("water_schedule")
+  petFriendly      Boolean     @default(false) @map("pet_friendly")
+  airPurifying     Boolean     @default(true) @map("air_purifying")
+  potColorsJson    String      @map("pot_colors_json") @db.Text
+  featuresJson     String      @map("features_json") @db.Text
+  inStock          Boolean     @default(true) @map("in_stock")
+  stockQty         Int         @default(45) @map("stock_qty")
+  isBestseller     Boolean     @default(false) @map("is_bestseller")
+  isFeaturedDeal   Boolean     @default(false) @map("is_featured_deal")
+  bundleEligible   Boolean     @default(true) @map("bundle_eligible")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  orderItems       OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id                Int         @id @default(autoincrement())
+  orderNumber       String      @unique @map("order_number")
+  userId            Int?        @map("user_id")
+  user              User?       @relation(fields: [userId], references: [id])
+  customerName      String      @map("customer_name")
+  customerPhone     String      @map("customer_phone")
+  customerEmail     String?     @map("customer_email")
+  shippingAddress   String      @map("shipping_address") @db.Text
+  city              String
+  pincode           String
+  paymentMethod     String      @default("RAZORPAY") @map("payment_method")
+  paymentStatus     String      @default("PENDING") @map("payment_status")
+  razorpayOrderId   String?     @map("razorpay_order_id")
+  razorpayPaymentId String?     @map("razorpay_payment_id")
+  razorpaySignature String?     @map("razorpay_signature")
+  couponCode        String?     @map("coupon_code")
+  subtotal          Int
+  discountAmount    Int         @default(0) @map("discount_amount")
+  shippingFee       Int         @default(0) @map("shipping_fee")
+  totalAmount       Int         @default(0) @map("total_amount")
+  status            String      @default("CONFIRMED")
+  notes             String?     @db.Text
+  createdAt         DateTime    @default(now()) @map("created_at")
+  items             OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              Int      @id @default(autoincrement())
+  orderId         Int      @map("order_id")
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       Int?     @map("product_id")
+  product         Product? @relation(fields: [productId], references: [id])
+  productName     String   @map("product_name")
+  potColor        String   @default("Matte Ivory") @map("pot_color")
+  potSize         String   @default("Medium (5 inch Self-Watering)") @map("pot_size")
+  unitPrice       Int      @map("unit_price")
+  quantity        Int      @default(1)
+  isBundle        Boolean  @default(false) @map("is_bundle")
+  bundleItemsJson String?  @map("bundle_items_json") @db.Text
+
+  @@map("order_items")
+}
+
+model Consultation {
+  id             Int      @id @default(autoincrement())
+  name           String
+  phone          String
+  email          String?
+  spaceType      String   @map("space_type")
+  lightCondition String   @map("light_condition")
+  message        String?  @db.Text
+  preferredSlot  String   @map("preferred_slot")
+  status         String   @default("SCHEDULED")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("consultations")
+}
+
+model NewsletterSubscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
+}

@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* GPU-accelerated smooth animations — zero main-thread layout thrash */
+@keyframes subtlePulseGlow {
+  0%, 100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes reelProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.reel-progress-bar {
+  transform-origin: left center;
+  animation: reelProgress 6s linear infinite;
+  will-change: transform;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Pot color swatch map */
+.pot-swatch-ivory { background-color: #EFECE4; }
+.pot-swatch-sage { background-color: #82967D; }
+.pot-swatch-terracotta { background-color: #C98B6B; }
+.pot-swatch-charcoal { background-color: #2E3230; }
