@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft, Eye, EyeOff, Lock, Mail, User, Phone, MapPin, ShieldCheck, Sparkles,
-  LogOut, Package, CreditCard, Crown, Leaf, ArrowRight, CheckCircle2
+  LogOut, Package, CreditCard, Crown, Leaf, ArrowRight, CheckCircle2, RotateCcw, Printer, Gift
 } from 'lucide-react';
 import { api, setStoredToken } from '../lib/api.js';
+import { buildWhatsAppUrl, WhatsAppIcon } from '../lib/whatsapp.jsx';
 
 const FIELD =
   'w-full rounded-xl border border-canopy-950/10 bg-linen-50 text-[13px] text-canopy-950 placeholder:text-stone-400 transition focus:border-canopy-950/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brass-500/10';
 const LABEL = 'mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-stone-500';
 
-export default function AuthView({ currentUser, onAuthSuccess, onLogout, onBackToStore, onOpenAdminPanel, onNotify }) {
+export default function AuthView({
+  currentUser,
+  storeConfig = {},
+  onAuthSuccess,
+  onLogout,
+  onBackToStore,
+  onOpenAdminPanel,
+  onOpenReceipt,
+  onReorder,
+  onNotify
+}) {
   const [tab, setTab] = useState('login');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -148,13 +159,18 @@ export default function AuthView({ currentUser, onAuthSuccess, onLogout, onBackT
                   {myOrders.map((o) => (
                     <div key={o.id} className="space-y-2.5 rounded-2xl border border-canopy-950/10 bg-linen-50 p-4 text-[11.5px]">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="font-mono text-[12px] font-bold text-canopy-950">{o.orderNumber}</span>
                           <span className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] ${o.paymentStatus === 'PAID' ? 'bg-canopy-700/10 text-canopy-800' : 'bg-terracotta-500/10 text-terracotta-600'}`}>
                             {o.paymentStatus === 'PAID' ? 'Paid' : 'Pending'}
                           </span>
+                          {o.isGift && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-extrabold text-canopy-800">
+                              <Gift className="h-2.5 w-2.5" /> Gift
+                            </span>
+                          )}
                         </div>
-                        <span className="rounded-full bg-canopy-950 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-brass-300">{o.status}</span>
+                        <span className="rounded-full bg-canopy-950 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-emerald-300">{o.status}</span>
                       </div>
                       <div className="space-y-1 text-stone-600">
                         {(o.items || []).map((it) => (
@@ -164,9 +180,33 @@ export default function AuthView({ currentUser, onAuthSuccess, onLogout, onBackT
                           </div>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between border-t border-canopy-950/10 pt-2">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-canopy-950/10 pt-2.5">
                         <span className="flex items-center gap-1.5 text-[10px] text-stone-500"><CreditCard className="h-3 w-3" /> {o.razorpayPaymentId || o.paymentMethod}</span>
-                        <span className="text-[13px] font-bold text-canopy-950 num">₹{o.totalAmount}</span>
+                        <span className="text-[13px] font-extrabold text-canopy-950 num">₹{o.totalAmount}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => onReorder?.(o)}
+                          className="inline-flex h-8 items-center gap-1.5 rounded-full bg-canopy-950 px-3 text-[10.5px] font-bold text-white transition hover:bg-canopy-800"
+                        >
+                          <RotateCcw className="h-3 w-3 text-emerald-300" /> 1-Click Reorder
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onOpenReceipt?.(o)}
+                          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-canopy-950/15 bg-white px-3 text-[10.5px] font-bold text-canopy-950 transition hover:bg-canopy-50"
+                        >
+                          <Printer className="h-3 w-3 text-canopy-700" /> Invoice / PDF
+                        </button>
+                        <a
+                          href={buildWhatsAppUrl(storeConfig, `Hi Greenzo Pune! Need an update on my order ${o.orderNumber} (₹${o.totalAmount}).`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex h-8 items-center gap-1 rounded-full border border-whatsapp/35 bg-whatsapp-soft px-3 text-[10.5px] font-bold text-whatsapp-deep transition hover:bg-whatsapp hover:text-white"
+                        >
+                          <WhatsAppIcon className="h-3 w-3" /> WhatsApp Help
+                        </a>
                       </div>
                     </div>
                   ))}

@@ -173,6 +173,11 @@ function initializeSchema(db) {
       total_amount INTEGER NOT NULL,
       status TEXT DEFAULT 'CONFIRMED',
       notes TEXT,
+      is_gift INTEGER DEFAULT 0,
+      gift_recipient TEXT DEFAULT '',
+      gift_occasion TEXT DEFAULT '',
+      gift_message TEXT DEFAULT '',
+      gift_sender TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
     );
@@ -212,6 +217,23 @@ function initializeSchema(db) {
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
+
+  // Safe migration for existing SQLite databases
+  const existingCols = new Set(
+    db.prepare('PRAGMA table_info(orders)').all().map((c) => c.name)
+  );
+  const giftMigrations = [
+    ['is_gift', "ALTER TABLE orders ADD COLUMN is_gift INTEGER DEFAULT 0"],
+    ['gift_recipient', "ALTER TABLE orders ADD COLUMN gift_recipient TEXT DEFAULT ''"],
+    ['gift_occasion', "ALTER TABLE orders ADD COLUMN gift_occasion TEXT DEFAULT ''"],
+    ['gift_message', "ALTER TABLE orders ADD COLUMN gift_message TEXT DEFAULT ''"],
+    ['gift_sender', "ALTER TABLE orders ADD COLUMN gift_sender TEXT DEFAULT ''"]
+  ];
+  for (const [col, sql] of giftMigrations) {
+    if (!existingCols.has(col)) {
+      db.exec(sql);
+    }
+  }
 }
 
 export function getStoreSettings(db = getDb()) {

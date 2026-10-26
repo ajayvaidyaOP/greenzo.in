@@ -19,7 +19,9 @@ import {
   Save,
   X,
   LogOut,
-  ExternalLink
+  ExternalLink,
+  Gift,
+  Printer
 } from 'lucide-react';
 import { api } from '../lib/api.js';
 
@@ -49,6 +51,7 @@ export default function AdminPanel({
   onBackToStore,
   onLogout,
   onCatalogMutated,
+  onOpenReceipt,
   onNotify
 }) {
   const [activeTab, setActiveTab] = useState('overview'); // overview | products | offers | gallery | orders | settings
@@ -1028,12 +1031,23 @@ export default function AdminPanel({
                                   ID: {o.razorpayPaymentId}
                                 </span>
                               )}
+                              {o.isGift && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-canopy-900">
+                                  <Gift className="w-3 h-3" /> Gift Card ({o.giftOccasion || 'Gift'})
+                                </span>
+                              )}
                             </div>
 
                             <p className="text-canopy-900 font-semibold">
                               {o.customerName} ({o.customerPhone}) — {o.shippingAddress}, {o.city} -{' '}
                               {o.pincode}
                             </p>
+
+                            {o.isGift && (
+                              <p className="text-xs font-semibold text-canopy-700 bg-canopy-50 border border-canopy-600/20 rounded-xl px-3 py-1.5">
+                                🎁 Print Gift Card — To: {o.giftRecipient || 'Recipient'} {o.giftSender ? `(From: ${o.giftSender})` : ''} · “{o.giftMessage}”
+                              </p>
+                            )}
 
                             <p className="text-canopy-700">
                               {o.items
@@ -1048,6 +1062,13 @@ export default function AdminPanel({
                           </div>
 
                           <div className="flex flex-wrap items-center gap-3 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => onOpenReceipt?.(o)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-canopy-950/15 bg-white text-xs font-bold text-canopy-950 hover:bg-canopy-50"
+                            >
+                              <Printer className="w-3.5 h-3.5 text-canopy-700" /> Invoice
+                            </button>
                             <span className="text-base font-bold text-canopy-950">
                               ₹{o.totalAmount}
                             </span>

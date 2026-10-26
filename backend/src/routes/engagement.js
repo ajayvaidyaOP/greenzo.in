@@ -4,6 +4,95 @@ import { evaluateCouponFromDb } from './orders.js';
 
 const router = Router();
 
+function formatAddDays(minDays, maxDays) {
+  const fmt = (d) =>
+    d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const d1 = new Date(Date.now() + minDays * 86400000);
+  if (!maxDays || maxDays === minDays) return fmt(d1);
+  const d2 = new Date(Date.now() + maxDays * 86400000);
+  return `${fmt(d1)} – ${fmt(d2)}`;
+}
+
+router.get('/serviceability/:pincode', (req, res) => {
+  const pin = String(req.params.pincode || '').replace(/\D/g, '');
+  if (!/^[1-8][0-9]{5}$/.test(pin)) {
+    return res.status(400).json({
+      serviceable: false,
+      error: 'Please enter a valid 6-digit Indian pincode (e.g. 411001).'
+    });
+  }
+
+  const p3 = pin.slice(0, 3);
+  const p2 = Number(pin.slice(0, 2));
+
+  let city = 'India';
+  let zone = 'Pan-India Safe Pod';
+  let dispatchBadge = 'Ventilated Honeycomb Pod';
+  let minDays = 4;
+  let maxDays = 6;
+
+  if (p3 === '411' || p3 === '412') {
+    city = 'Pune / PCMC';
+    zone = 'Pune Nursery Direct';
+    dispatchBadge = 'Same-Day Dispatch from Theur';
+    minDays = 1;
+    maxDays = 1;
+  } else if (['400', '401', '410'].includes(p3)) {
+    city = 'Mumbai / Thane / Navi Mumbai';
+    zone = 'Western Express Corridor';
+    dispatchBadge = 'Next-Day Express Transit';
+    minDays = 1;
+    maxDays = 2;
+  } else if (p2 >= 41 && p2 <= 44) {
+    city = 'Maharashtra';
+    zone = 'Maharashtra Priority';
+    dispatchBadge = 'Direct Road-Pod Transit';
+    minDays = 2;
+    maxDays = 3;
+  } else if (
+    ['110', '122', '201', '560', '500', '600', '380', '395', '302', '700', '452', '226', '682'].includes(p3)
+  ) {
+    const metroMap = {
+      '110': 'New Delhi',
+      '122': 'Gurugram',
+      '201': 'Noida / NCR',
+      '560': 'Bengaluru',
+      '500': 'Hyderabad',
+      '600': 'Chennai',
+      '380': 'Ahmedabad',
+      '395': 'Surat',
+      '302': 'Jaipur',
+      '700': 'Kolkata',
+      '452': 'Indore',
+      '226': 'Lucknow',
+      '682': 'Kochi'
+    };
+    city = metroMap[p3] || 'Metro City';
+    zone = 'Metro Air-Corridor';
+    dispatchBadge = 'Air-Express Honeycomb Pod';
+    minDays = 3;
+    maxDays = 4;
+  }
+
+  res.json({
+    serviceable: true,
+    pincode: pin,
+    city,
+    zone,
+    dispatchBadge,
+    minDays,
+    maxDays,
+    etaRange: formatAddDays(minDays, maxDays),
+    etaLabel:
+      minDays === 1 && maxDays === 1
+        ? `Tomorrow (${formatAddDays(1, 1)})`
+        : `${minDays}–${maxDays} Days (${formatAddDays(minDays, maxDays)})`,
+    codAvailable: true,
+    freeAbove: 499,
+    livePhotoProof: true
+  });
+});
+
 router.post('/coupons/validate', (req, res) => {
   const db = getDb();
   const { code, subtotal = 0 } = req.body || {};

@@ -4,68 +4,74 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Deep forest — primary dark surfaces
+        // Lush living rainforest emerald — primary brand & dark surfaces
         canopy: {
-          950: '#0A1512',
-          900: '#0F1F19',
-          850: '#14291F',
-          800: '#1B3A2B',
-          700: '#26503B',
-          600: '#356B50',
-          500: '#4C8870',
-          400: '#7DAE95',
-          300: '#A9C8B7',
-          200: '#CBE0D3',
-          100: '#E1ECE4',
-          50: '#F0F6F1',
-          25: '#F7FAF6'
+          950: '#071E15',
+          900: '#0B2B1E',
+          850: '#103928',
+          800: '#154B35',
+          700: '#1A6446',
+          600: '#1F7F58',
+          500: '#279D6C',
+          400: '#4DBE8D',
+          300: '#89D7B3',
+          200: '#BFEAD5',
+          100: '#E3F6ED',
+          50: '#F1FAF5',
+          25: '#F7FCF9'
         },
-        // Warm travertine / ivory paper tones
+        // Crisp porcelain & sunlit conservatory ivory (replaces dusty yellow beige)
         linen: {
-          50: '#FBF8F1',
-          75: '#F8F3E8',
-          100: '#F3ECDD',
-          150: '#EBE1CD',
-          200: '#E1D3B8',
-          300: '#CFBE9B',
-          400: '#B9A279'
+          50: '#F8FBF9',
+          75: '#F1F7F3',
+          100: '#E6F0EA',
+          150: '#D8E7DE',
+          200: '#C5DBC9',
+          300: '#A5C5AF',
+          400: '#7FA88C'
         },
-        // Antique brass — the signature accent
+        // Sunlit champagne gold — ratings, highlights & Studio badges
         brass: {
-          700: '#6E5322',
-          600: '#8C6B2F',
-          500: '#B08A3E',
-          400: '#CBA95F',
-          300: '#E2C98F',
-          200: '#F0E2C1',
-          100: '#F7EED6',
-          50: '#FAF3E2'
+          700: '#78541A',
+          600: '#9A6D23',
+          500: '#C28D32',
+          400: '#DDA94B',
+          300: '#F0CA7D',
+          200: '#F8E3B4',
+          100: '#FCF1D6',
+          50: '#FEF9EC'
         },
-        // Burnished clay accent
+        // Warm terracotta clay — limited deals & wishlist
         terracotta: {
-          700: '#8A3D20',
-          600: '#A34A2B',
-          500: '#BF5C37',
-          400: '#D98A63',
-          300: '#E8AE8D',
-          200: '#EBC4AE',
-          100: '#F6E1D4',
-          50: '#FCF2EA'
+          700: '#8F391D',
+          600: '#AA4626',
+          500: '#C85834',
+          400: '#DF8563',
+          300: '#ECAD93',
+          200: '#F4C9B8',
+          100: '#FAE3DA',
+          50: '#FDF3EF'
         },
-        // Warm neutral greys (replaces cool stone)
+        // Crisp botanical slate-stone neutrals
         stone: {
-          50: '#F7F6F1',
-          100: '#EFEDE5',
-          200: '#E2DFD4',
-          300: '#CBC7B9',
-          400: '#A8A395',
-          500: '#86816F',
-          600: '#666156',
-          700: '#4C4841',
-          800: '#332F2A',
-          900: '#1F1D1A'
+          50: '#F6F8F7',
+          100: '#ECF0EE',
+          200: '#DCE3DF',
+          300: '#C2CCC6',
+          400: '#95A39B',
+          500: '#68766E',
+          600: '#4C5952',
+          700: '#37423C',
+          800: '#232B27',
+          900: '#141A17'
         },
-        mist: { 50: '#F7F9F6', 100: '#EEF2EC', 200: '#DDE5D9' }
+        whatsapp: {
+          DEFAULT: '#25D366',
+          dark: '#1DA851',
+          deep: '#128C7E',
+          soft: '#E7FBF0'
+        },
+        mist: { 50: '#F5FAF7', 100: '#EBF4EE', 200: '#D6E7DC' }
       },
       fontFamily: {
         serif: ['"Fraunces"', '"Cormorant Garamond"', 'Georgia', 'serif'],
@@ -76,14 +82,15 @@ export default {
         '3xs': ['9.5px', { lineHeight: '12px' }]
       },
       letterSpacing: {
-        'ultra': '0.32em'
+        ultra: '0.32em'
       },
       boxShadow: {
-        soft: '0 1px 2px rgba(10,21,18,0.04), 0 10px 28px -18px rgba(10,21,18,0.28)',
-        card: '0 1px 2px rgba(10,21,18,0.05), 0 16px 40px -24px rgba(10,21,18,0.35)',
-        'soft-lg': '0 2px 6px rgba(10,21,18,0.05), 0 28px 60px -30px rgba(10,21,18,0.40)',
-        elevated: '0 4px 12px rgba(10,21,18,0.08), 0 40px 80px -36px rgba(10,21,18,0.48)',
-        gold: '0 12px 34px -16px rgba(176,138,62,0.55)',
+        soft: '0 1px 2px rgba(7,30,21,0.04), 0 10px 28px -18px rgba(7,30,21,0.22)',
+        card: '0 1px 3px rgba(7,30,21,0.05), 0 18px 42px -22px rgba(7,30,21,0.28)',
+        'soft-lg': '0 4px 12px rgba(7,30,21,0.06), 0 28px 60px -28px rgba(7,30,21,0.34)',
+        elevated: '0 8px 20px rgba(7,30,21,0.09), 0 40px 80px -34px rgba(7,30,21,0.44)',
+        gold: '0 12px 32px -14px rgba(194,141,50,0.48)',
+        whatsapp: '0 12px 30px -10px rgba(37,211,102,0.52)',
         'inset-line': 'inset 0 0 0 1px rgba(255,255,255,0.08)'
       },
       borderRadius: { '4xl': '32px', '5xl': '40px', '6xl': '48px' },
@@ -92,27 +99,27 @@ export default {
         'out-expo': 'cubic-bezier(0.19, 1, 0.22, 1)'
       },
       animation: {
-        'fade-in': 'fadeIn 0.7s cubic-bezier(0.16,1,0.3,1) both',
-        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both',
-        'scale-in': 'scaleIn 0.5s cubic-bezier(0.16,1,0.3,1) both',
-        'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.16,1,0.3,1) both',
-        'slide-in-left': 'slideInLeft 0.5s cubic-bezier(0.16,1,0.3,1) both',
-        'marquee': 'marquee 42s linear infinite',
-        'float-soft': 'floatSoft 7s ease-in-out infinite',
+        'fade-in': 'fadeIn 0.55s cubic-bezier(0.16,1,0.3,1) both',
+        'fade-up': 'fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both',
+        'scale-in': 'scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) both',
+        'slide-in-right': 'slideInRight 0.45s cubic-bezier(0.16,1,0.3,1) both',
+        'slide-in-left': 'slideInLeft 0.45s cubic-bezier(0.16,1,0.3,1) both',
+        marquee: 'marquee 38s linear infinite',
+        'float-soft': 'floatSoft 6s ease-in-out infinite',
         'ken-burns': 'kenBurns 22s ease-in-out infinite alternate',
         'pulse-ring': 'pulseRing 2.4s cubic-bezier(0.4,0,0.6,1) infinite',
-        'shimmer': 'shimmer 2.2s linear infinite',
+        shimmer: 'shimmer 2.2s linear infinite',
         'spin-slow': 'spin 18s linear infinite',
-        'sheen': 'sheen 6s ease-in-out infinite'
+        sheen: 'sheen 6s ease-in-out infinite'
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        fadeUp: { '0%': { opacity: '0', transform: 'translate3d(0,18px,0)' }, '100%': { opacity: '1', transform: 'none' } },
+        fadeUp: { '0%': { opacity: '0', transform: 'translate3d(0,16px,0)' }, '100%': { opacity: '1', transform: 'none' } },
         scaleIn: { '0%': { opacity: '0', transform: 'scale(0.96) translateY(8px)' }, '100%': { opacity: '1', transform: 'none' } },
         slideInRight: { '0%': { transform: 'translateX(100%)' }, '100%': { transform: 'translateX(0)' } },
         slideInLeft: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(0)' } },
         marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
-        floatSoft: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
+        floatSoft: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-7px)' } },
         kenBurns: { '0%': { transform: 'scale(1) translate(0,0)' }, '100%': { transform: 'scale(1.08) translate(-1%, -1%)' } },
         pulseRing: { '0%': { transform: 'scale(0.85)', opacity: '0.7' }, '100%': { transform: 'scale(1.9)', opacity: '0' } },
         shimmer: { '0%': { backgroundPosition: '-460px 0' }, '100%': { backgroundPosition: '460px 0' } },

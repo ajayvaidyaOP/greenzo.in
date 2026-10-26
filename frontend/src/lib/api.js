@@ -58,6 +58,8 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ code, subtotal })
     }),
+  checkServiceability: (pincode) =>
+    request(`/serviceability/${encodeURIComponent(pincode)}`),
   createOrder: (payload) =>
     request('/orders', {
       method: 'POST',

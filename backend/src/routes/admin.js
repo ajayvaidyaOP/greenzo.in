@@ -90,6 +90,11 @@ router.get('/dashboard', (_req, res) => {
         shippingFee: o.shipping_fee,
         totalAmount: o.total_amount,
         status: o.status,
+        isGift: Boolean(o.is_gift),
+        giftRecipient: o.gift_recipient || '',
+        giftOccasion: o.gift_occasion || '',
+        giftMessage: o.gift_message || '',
+        giftSender: o.gift_sender || '',
         createdAt: o.created_at,
         items
       };
