@@ -1,8 +1,31 @@
 import React, { useState, useMemo } from 'react';
-import { Heart, Star, ShoppingBag, Eye, Sun, Shield, Wind, SlidersHorizontal, Sparkles, RotateCcw, ArrowRight, Truck, Leaf } from 'lucide-react';
+import {
+  Heart, Star, ShoppingBag, Eye, Sun, Shield, Wind, SlidersHorizontal, Sparkles,
+  RotateCcw, ArrowRight, Truck, Leaf, ArrowUpRight
+} from 'lucide-react';
 import { getPotSwatchClass } from '../lib/api.js';
+import Reveal from './Reveal.jsx';
 
-export default function ProductSection({ products = [], categories = [], activeCategory, onSelectCategory, searchQuery, onClearSearch, wishlist = [], onToggleWishlist, onAddToCart, onQuickView, onOpenBundle }) {
+const FILTERS = [
+  { id: 'all', label: 'All editions', icon: null },
+  { id: 'low-light', label: 'Low light · AC', icon: Sun },
+  { id: 'air-purifier', label: 'Air purifying', icon: Wind },
+  { id: 'pet-safe', label: 'Pet friendly', icon: Shield }
+];
+
+export default function ProductSection({
+  products = [],
+  categories = [],
+  activeCategory,
+  onSelectCategory,
+  searchQuery,
+  onClearSearch,
+  wishlist = [],
+  onToggleWishlist,
+  onAddToCart,
+  onQuickView,
+  onOpenBundle
+}) {
   const [roomFilter, setRoomFilter] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
   const [selectedColors, setSelectedColors] = useState({});
@@ -24,112 +47,241 @@ export default function ProductSection({ products = [], categories = [], activeC
   }, [products, activeCategory, searchQuery, roomFilter, sortBy]);
 
   const reset = () => { onSelectCategory('all'); setRoomFilter('all'); setSortBy('featured'); onClearSearch(); };
+  const isFiltered = activeCategory !== 'all' || roomFilter !== 'all' || Boolean(searchQuery);
+  const activeCatName = categories.find((c) => c.slug === activeCategory)?.name;
 
   return (
-    <section id="shop" className="relative bg-white py-14 lg:py-16 overflow-hidden">
-      <div className="max-w-[1360px] mx-auto px-5 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-6">
-          <div className="max-w-[680px]">
-            <div className="inline-flex items-center gap-2"><span className="w-7 h-px bg-stone-300" /><span className="text-[11px] font-bold tracking-[0.18em] uppercase text-canopy-700">The Atelier Collection</span><span className="px-2.5 py-1 rounded-full bg-linen-50 border border-stone-100 text-[11px] font-semibold text-canopy-800">{filtered.length} editions</span></div>
-            <h2 className="mt-3 font-serif text-[32px] sm:text-[40px] lg:text-[44px] leading-[0.94] tracking-[-0.02em] font-semibold text-canopy-950 text-balance">Living sculptures, <span className="italic font-normal text-canopy-700">calibrated</span> for modern homes.</h2>
-            <p className="mt-3 text-[13.5px] leading-relaxed text-stone-600 max-w-[60ch]">Pune-acclimatized hydro-wick pots — 14-day reservoir, air-purifying foliage, made to thrive in low light & AC.</p>
-          </div>
-          <button onClick={onOpenBundle} className="self-start lg:self-auto inline-flex items-center gap-2.5 pl-5 pr-2 py-2 rounded-full bg-canopy-950 text-white hover:bg-black transition shadow-card group"><Sparkles className="w-4 h-4 text-emerald-300" /><span className="text-[13px] font-semibold">Build 4-Plant Box — ₹999</span><span className="w-8 h-8 rounded-full bg-white text-canopy-950 flex items-center justify-center group-hover:translate-x-0.5 transition"><ArrowRight className="w-4 h-4" /></span></button>
+    <section id="shop" className="relative bg-white py-16 lg:py-24">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-24 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(176,138,62,0.10),transparent_65%)] blur-2xl" />
+      </div>
+      <div className="shell relative">
+        {/* Heading */}
+        <div className="mb-9 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <Reveal className="max-w-[720px]">
+            <span className="eyebrow"><span className="h-px w-7 bg-brass-500/70" /> The atelier collection</span>
+            <h2 className="display-section mt-3 text-canopy-950">
+              Living sculptures, <span className="italic text-canopy-700">calibrated</span>
+              <br className="hidden sm:block" /> for modern homes.
+            </h2>
+            <p className="lede mt-4 max-w-[58ch]">
+              Pune-acclimatised hydro-wick planters — a 14-day reservoir, air-purifying foliage, and a finish
+              palette built for warm, minimal interiors.
+            </p>
+          </Reveal>
+
+          <Reveal delay={120} className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2.5 rounded-full border border-canopy-950/10 bg-linen-50 px-4 py-2.5">
+              <span className="font-serif text-[19px] leading-none text-canopy-950 num">{filtered.length}</span>
+              <span className="text-[10.5px] font-medium leading-tight text-stone-500">editions<br />in view</span>
+            </div>
+            <button onClick={onOpenBundle} className="btn btn-dark btn-md group/btn">
+              <Sparkles className="h-4 w-4 text-brass-300" />
+              Build a 4-plant box
+              <span className="btn-disc ml-1 h-8 w-8 bg-brass-400 text-canopy-950"><ArrowRight className="h-3.5 w-3.5" /></span>
+            </button>
+          </Reveal>
         </div>
 
-        <div className="sticky top-[68px] z-30 -mx-5 lg:mx-0 px-5 lg:px-0 mb-6">
-          <div className="rounded-[16px] bg-white border border-stone-200 shadow-card p-2.5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.12em] uppercase text-stone-500 shrink-0"><SlidersHorizontal className="w-3.5 h-3.5" /> Filter</span>
-              {[
-                { id: 'all', label: 'All Editions', icon: null },
-                { id: 'low-light', label: 'Low Light • AC', icon: Sun },
-                { id: 'air-purifier', label: 'Air Purifying', icon: Wind },
-                { id: 'pet-safe', label: 'Pet Friendly', icon: Shield },
-              ].map((pill) => {
-                const Icon = pill.icon; const active = roomFilter === pill.id;
-                return <button key={pill.id} onClick={() => setRoomFilter(pill.id)} className={`px-3.5 py-2 rounded-full text-[12.5px] font-medium inline-flex items-center gap-1.5 shrink-0 border transition ${active ? 'bg-canopy-950 text-white border-canopy-950' : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-white'}`}>{Icon && <Icon className="w-3.5 h-3.5" />}{pill.label}</button>;
+        {/* Filter bar */}
+        <div className="sticky top-[68px] z-30 mb-8">
+          <div className="flex flex-col items-stretch justify-between gap-2.5 rounded-[20px] border border-canopy-950/10 bg-linen-50/90 p-2 shadow-soft backdrop-blur-xl lg:flex-row lg:items-center">
+            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
+              <span className="hidden shrink-0 items-center gap-1.5 pl-2 pr-1 text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-stone-400 sm:inline-flex">
+                <SlidersHorizontal className="h-3.5 w-3.5" /> Filter
+              </span>
+              {FILTERS.map((pill) => {
+                const Icon = pill.icon;
+                const active = roomFilter === pill.id;
+                return (
+                  <button
+                    key={pill.id}
+                    onClick={() => setRoomFilter(pill.id)}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-semibold transition-all duration-500 ease-silk ${
+                      active
+                        ? 'bg-canopy-950 text-linen-50 shadow-sm'
+                        : 'text-stone-600 hover:bg-white hover:text-canopy-950'
+                    }`}
+                  >
+                    {Icon && <Icon className={`h-3.5 w-3.5 ${active ? 'text-brass-300' : 'text-stone-400'}`} />}
+                    {pill.label}
+                  </button>
+                );
               })}
-              {activeCategory !== 'all' && <span className="px-3 py-2 rounded-full bg-linen-50 border border-stone-200 text-xs font-semibold text-canopy-950 shrink-0">{categories.find((c) => c.slug === activeCategory)?.name}</span>}
+              {activeCategory !== 'all' && (
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brass-500/30 bg-brass-50 px-3 py-2 text-[11px] font-bold text-brass-700">
+                  {activeCatName}
+                  <button onClick={() => onSelectCategory('all')} aria-label="Clear category"><ArrowUpRight className="h-3 w-3 rotate-45" /></button>
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {(activeCategory !== 'all' || roomFilter !== 'all' || searchQuery) && <button onClick={reset} className="px-3 py-2 rounded-full bg-white border border-stone-200 text-xs font-medium text-stone-600 flex items-center gap-1"><RotateCcw className="w-3.5 h-3.5" /> Clear</button>}
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="h-9 px-3.5 rounded-full bg-stone-50 border border-stone-200 text-[12.5px] font-medium text-stone-700 focus:outline-none"><option value="featured">Featured — Curator&apos;s Pick</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="rating">Highest Rated</option></select>
+
+            <div className="flex items-center gap-2 pr-0.5">
+              {isFiltered && (
+                <button onClick={reset} className="inline-flex items-center gap-1.5 rounded-full border border-canopy-950/10 bg-white px-3 py-2 text-[11.5px] font-semibold text-stone-600 transition hover:text-canopy-950">
+                  <RotateCcw className="h-3 w-3" /> Reset
+                </button>
+              )}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="h-9 cursor-pointer appearance-none rounded-full border border-canopy-950/10 bg-white pl-3.5 pr-8 text-[11.5px] font-semibold text-canopy-900 focus:outline-none"
+                >
+                  <option value="featured">Curator&apos;s pick</option>
+                  <option value="price-asc">Price: low to high</option>
+                  <option value="price-desc">Price: high to low</option>
+                  <option value="rating">Highest rated</option>
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[8px] text-stone-400">▼</span>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Grid */}
         {filtered.length === 0 ? (
-          <div className="rounded-[20px] border border-dashed border-stone-200 bg-stone-50 p-10 text-center"><p className="font-serif text-xl font-semibold text-canopy-950">No editions match that filter</p><p className="text-sm text-stone-600 mt-1">Try clearing filters.</p><button onClick={reset} className="mt-5 h-10 px-6 rounded-full bg-canopy-950 text-white text-sm font-semibold">Show All</button></div>
+          <div className="rounded-[24px] border border-dashed border-canopy-950/15 bg-linen-50 p-14 text-center">
+            <p className="font-serif text-[24px] text-canopy-950">No editions match that filter</p>
+            <p className="mt-1 text-[13px] text-stone-500">Try a different sanctuary or clear your filters.</p>
+            <button onClick={reset} className="btn btn-dark btn-sm mt-6">Show all plants</button>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-            {filtered.map((plant) => {
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4">
+            {filtered.map((plant, i) => {
               const isWishlisted = wishlist.includes(plant.slug);
               const chosenColor = selectedColors[plant.slug] || plant.potColors?.[0] || 'Matte Ivory';
               const discount = Math.round(((plant.originalPrice - plant.price) / plant.originalPrice) * 100);
               const secondaryImg = plant.gallery?.[1] || plant.imageUrl;
               return (
-                <article key={plant.slug} className="group flex flex-col overflow-hidden rounded-[18px] bg-white border border-stone-100 shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
-                  <div className="relative aspect-[4/3.6] bg-linen-50 overflow-hidden">
-                    {/* Primary image */}
-                    <img src={plant.imageUrl} alt={plant.name} loading="lazy" onClick={() => onQuickView(plant)} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-0 transition duration-500 cursor-pointer" />
-                    {/* Secondary on hover */}
-                    <img src={secondaryImg} alt={plant.name} loading="lazy" onClick={() => onQuickView(plant)} className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition duration-500 cursor-pointer" />
+                <Reveal key={plant.slug} delay={Math.min(i * 70, 420)} as="article" className="group flex flex-col overflow-hidden rounded-[22px] border border-canopy-950/[0.09] bg-white transition-all duration-500 ease-silk hover:-translate-y-1.5 hover:border-canopy-950/20 hover:shadow-soft-lg">
+                  <div className="relative aspect-[4/4.1] overflow-hidden bg-linen-100">
+                    <img
+                      src={plant.imageUrl}
+                      alt={plant.name}
+                      loading="lazy"
+                      onClick={() => onQuickView(plant)}
+                      className="absolute inset-0 h-full w-full cursor-pointer object-cover transition-all duration-700 ease-silk group-hover:scale-[1.04] group-hover:opacity-0"
+                    />
+                    <img
+                      src={secondaryImg}
+                      alt=""
+                      loading="lazy"
+                      onClick={() => onQuickView(plant)}
+                      className="absolute inset-0 h-full w-full cursor-pointer scale-[1.04] object-cover opacity-0 transition-all duration-700 ease-silk group-hover:scale-100 group-hover:opacity-100"
+                    />
 
-                    {/* Ribbon discount */}
-                    {discount > 0 && <span className="ribbon">Save {discount}%</span>}
+                    {discount > 0 && (
+                      <span className="absolute left-3 top-3 rounded-full bg-canopy-950/90 px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-brass-300 backdrop-blur">
+                        −{discount}% · save
+                      </span>
+                    )}
 
-                    {plant.badge && <span className="absolute top-3 right-12 px-2.5 py-1 rounded-full bg-white text-canopy-950 text-[11px] font-semibold shadow-sm border border-stone-100 hidden lg:inline-flex">{plant.badge}</span>}
-
-                    <div className="absolute top-3 right-3 flex flex-col gap-2">
-                      <button onClick={() => onToggleWishlist(plant.slug)} className="w-8 h-8 rounded-full bg-white shadow-card border border-stone-100 flex items-center justify-center hover:shadow-elevated transition"><Heart className={`w-4 h-4 ${isWishlisted ? 'fill-terracotta-500 text-terracotta-500' : 'text-stone-600'}`} /></button>
-                      <button onClick={() => onQuickView(plant)} className="w-8 h-8 rounded-full bg-white shadow-card border border-stone-100 hidden sm:flex items-center justify-center text-stone-600 hover:text-canopy-950 transition"><Eye className="w-4 h-4" /></button>
+                    <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+                      <button
+                        onClick={() => onToggleWishlist(plant.slug)}
+                        aria-label="Toggle wishlist"
+                        className={`grid h-8 w-8 place-items-center rounded-full border border-white/60 bg-linen-50/90 shadow-sm backdrop-blur transition hover:scale-105 ${
+                          isWishlisted ? 'text-terracotta-500' : 'text-canopy-900'
+                        }`}
+                      >
+                        <Heart className={`h-3.5 w-3.5 ${isWishlisted ? 'fill-terracotta-500' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => onQuickView(plant)}
+                        aria-label="Quick view"
+                        className="hidden h-8 w-8 place-items-center rounded-full border border-white/60 bg-linen-50/90 text-canopy-900 shadow-sm backdrop-blur transition hover:scale-105 sm:grid"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
                     </div>
 
-                    <div className="absolute bottom-3 left-3 right-12 flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur border border-white/60 text-[11px] font-medium text-canopy-950 shadow-sm"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {plant.lightLevel}</span>
-                      <span className="hidden sm:inline-flex text-[11px] font-medium text-white bg-black/45 backdrop-blur px-2.5 py-1 rounded-full border border-white/15"><Truck className="w-3 h-3" /> Free deliv.</span>
+                    <div className="absolute inset-x-3 bottom-14 flex flex-wrap items-center gap-1.5 transition-opacity duration-300 sm:bottom-3 sm:group-hover:opacity-0">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-linen-50/90 px-2.5 py-1 text-[10px] font-semibold text-canopy-950 shadow-sm backdrop-blur">
+                        <Sun className="h-2.5 w-2.5 text-brass-600" /> {plant.lightLevel}
+                      </span>
+                      {plant.badge && (
+                        <span className="hidden rounded-full bg-canopy-950/85 px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-[0.1em] text-linen-100 backdrop-blur sm:inline-flex">
+                          {plant.badge}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Hover quick add bar */}
-                    <div className="absolute bottom-0 inset-x-0 p-2 translate-y-full group-hover:translate-y-0 transition duration-300">
-                      <button onClick={() => onAddToCart({ slug: plant.slug, productName: plant.name, imageUrl: plant.imageUrl, potColor: chosenColor, potSize: 'Medium (5 inch Self-Watering)', unitPrice: plant.price, quantity: 1, isBundle: false })} className="w-full h-9 rounded-full bg-canopy-950 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-lg hover:bg-black transition">
-                        <ShoppingBag className="w-3.5 h-3.5 text-emerald-300" /> Quick Add — ₹{plant.price}
+                    <div className="absolute inset-x-2 bottom-2 transition-all duration-500 ease-silk sm:translate-y-[130%] sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+                      <button
+                        onClick={() => onAddToCart({ slug: plant.slug, productName: plant.name, imageUrl: plant.imageUrl, potColor: chosenColor, potSize: 'Medium (5 inch Self-Watering)', unitPrice: plant.price, quantity: 1, isBundle: false })}
+                        className="flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-canopy-950 text-[11.5px] font-semibold text-linen-50 shadow-lg transition hover:bg-brass-500 hover:text-canopy-950"
+                      >
+                        <ShoppingBag className="h-3.5 w-3.5" /> Quick add — ₹{plant.price}
                       </button>
                     </div>
                   </div>
 
-                  <div className="p-4 flex-1 flex flex-col">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="italic font-serif text-[12px] text-stone-500 truncate">{plant.botanicalName}</span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-canopy-950 bg-linen-50 border border-stone-100 px-2 py-0.5 rounded-full"><Star className="w-3 h-3 fill-brass-500 text-brass-500" /> {plant.rating.toFixed(1)}</span>
+                  <div className="flex flex-1 flex-col p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="truncate font-serif text-[12px] italic text-stone-500">{plant.botanicalName}</p>
+                      <span className="inline-flex shrink-0 items-center gap-1 text-[10.5px] font-bold text-canopy-950">
+                        <Star className="h-2.5 w-2.5 fill-brass-500 text-brass-500" /> {plant.rating.toFixed(1)}
+                        <span className="font-normal text-stone-400">({plant.reviewCount})</span>
+                      </span>
                     </div>
-                    <h3 onClick={() => onQuickView(plant)} className="mt-1 font-serif text-[16px] sm:text-[17px] font-semibold leading-tight text-canopy-950 line-clamp-1 cursor-pointer hover:text-canopy-800">{plant.name}</h3>
-                    <p className="mt-1 text-[12px] leading-relaxed text-stone-600 line-clamp-2 min-h-[34px]">{plant.shortDescription}</p>
 
-                    <div className="mt-3 flex items-center justify-between pt-3 border-t border-stone-100">
-                      <span className="text-[11px] font-medium text-stone-500">Pot — <span className="font-semibold text-canopy-950">{chosenColor}</span></span>
-                      <div className="flex items-center gap-1">
+                    <h3 onClick={() => onQuickView(plant)} className="mt-1.5 cursor-pointer font-serif text-[17px] leading-tight text-canopy-950 transition-colors hover:text-canopy-700">
+                      {plant.name}
+                    </h3>
+                    <p className="mt-1.5 line-clamp-2 min-h-[32px] text-[11.5px] leading-relaxed text-stone-500">{plant.shortDescription}</p>
+
+                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-canopy-950/[0.07] pt-3">
+                      <span className="truncate text-[10px] font-medium text-stone-400">
+                        Pot · <span className="font-semibold text-canopy-900">{chosenColor}</span>
+                      </span>
+                      <div className="flex shrink-0 items-center gap-1">
                         {(plant.potColors || []).slice(0, 4).map((color) => (
-                          <button key={color} title={color} onClick={() => setSelectedColors((p) => ({ ...p, [plant.slug]: color }))} className={`w-[16px] h-[16px] rounded-full border-2 transition ${getPotSwatchClass(color)} ${chosenColor === color ? 'border-canopy-950 ring-2 ring-canopy-950/15 scale-110' : 'border-white shadow-sm'}`} />
+                          <button
+                            key={color}
+                            title={color}
+                            aria-label={color}
+                            onClick={() => setSelectedColors((p) => ({ ...p, [plant.slug]: color }))}
+                            className={`h-[15px] w-[15px] rounded-full border-2 transition duration-300 ${getPotSwatchClass(color)} ${
+                              chosenColor === color ? 'scale-110 border-canopy-950' : 'border-white shadow-sm hover:scale-105'
+                            }`}
+                          />
                         ))}
                       </div>
                     </div>
 
-                    <div className="mt-3 flex items-end justify-between gap-3">
+                    <div className="mt-3 flex items-end justify-between gap-2">
                       <div>
-                        <div className="flex items-baseline gap-1.5"><span className="text-[18px] font-bold tracking-tight text-canopy-950">₹{plant.price}</span><span className="text-xs text-stone-400 line-through">₹{plant.originalPrice}</span></div>
-                        <span className="text-[11px] font-medium text-emerald-700 flex items-center gap-1"><Leaf className="w-3 h-3" /> Hydro-wick included</span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="font-serif text-[20px] font-medium leading-none tracking-tight text-canopy-950 num">₹{plant.price}</span>
+                          <span className="text-[11px] text-stone-400 line-through num">₹{plant.originalPrice}</span>
+                        </div>
+                        <span className="mt-1 flex items-center gap-1 text-[10px] font-medium text-canopy-700">
+                          <Leaf className="h-2.5 w-2.5" /> Hydro-wick included
+                        </span>
                       </div>
-                      <span className="hidden lg:inline-flex text-[11px] text-stone-500 bg-stone-50 border border-stone-100 px-2 py-1 rounded-full">{plant.stockQty} left</span>
+                      <span className={`rounded-full border px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] ${
+                        plant.stockQty > 20
+                          ? 'border-canopy-700/15 bg-canopy-50 text-canopy-700'
+                          : 'border-terracotta-500/20 bg-terracotta-50 text-terracotta-600'
+                      }`}>
+                        {plant.stockQty} left
+                      </span>
                     </div>
                   </div>
-                </article>
+                </Reveal>
               );
             })}
           </div>
         )}
-        <p className="mt-8 text-center text-xs text-stone-500">Pune-acclimatized • Plastic-free kraft pods • <a href="#deal" className="underline decoration-stone-300 underline-offset-4 hover:text-canopy-950">Weekly Atelier Deal →</a></p>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-stone-500">
+          <span className="inline-flex items-center gap-1.5"><Truck className="h-3.5 w-3.5 text-canopy-700" /> Free delivery ₹499+</span>
+          <span className="h-3 w-px bg-canopy-950/10" />
+          <span className="inline-flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-canopy-700" /> 7-day healthy guarantee</span>
+          <span className="h-3 w-px bg-canopy-950/10" />
+          <a href="#deal" className="link-line font-semibold text-canopy-950">Weekly atelier deal →</a>
+        </div>
       </div>
     </section>
   );

@@ -24,18 +24,18 @@ export default function ProductQuickView({ product, onClose, onAddToCart }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
-      <div onClick={onClose} className="absolute inset-0 bg-canopy-950/60 backdrop-blur-md" />
-      <div className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-[28px] shadow-elevated border border-stone-100 overflow-hidden grid md:grid-cols-12">
+      <div onClick={onClose} className="absolute inset-0 animate-fade-in bg-canopy-950/60 backdrop-blur-md" />
+      <div className="relative grid max-h-[92vh] w-full max-w-5xl animate-scale-in overflow-hidden rounded-[28px] border border-canopy-950/10 bg-linen-50 shadow-elevated md:grid-cols-12">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-stone-50 hover:bg-stone-100 border border-stone-100 flex items-center justify-center text-stone-600 transition"
+          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-linen-50 hover:bg-linen-100 border border-canopy-950/10 flex items-center justify-center text-stone-600 transition"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Left — Gallery */}
-        <div className="md:col-span-6 p-6 sm:p-7 bg-linen-75 border-b md:border-b-0 md:border-r border-stone-100 flex flex-col">
-          <div className="rounded-[20px] overflow-hidden aspect-square bg-white border border-stone-100 p-2">
+        <div className="md:col-span-6 p-6 sm:p-7 bg-linen-75 border-b md:border-b-0 md:border-r border-canopy-950/10 flex flex-col">
+          <div className="rounded-[20px] overflow-hidden aspect-square bg-white border border-canopy-950/10 p-2">
             <img src={activeImg || product.imageUrl} alt={product.name} className="w-full h-full object-cover rounded-[14px]" />
           </div>
           {gallery.length > 1 && (
@@ -69,7 +69,7 @@ export default function ProductQuickView({ product, onClose, onAddToCart }) {
             <span className="inline-flex items-center gap-1 font-semibold text-canopy-950">
               <Star className="w-3.5 h-3.5 fill-brass-500 text-brass-500" /> {product.rating} ({product.reviewCount})
             </span>
-            <span className="px-2 py-1 rounded-full bg-linen-50 border border-stone-100 text-[11px] hidden sm:inline-flex">Indoor • Pune grown</span>
+            <span className="px-2 py-1 rounded-full bg-linen-50 border border-canopy-950/10 text-[11px] hidden sm:inline-flex">Indoor • Pune grown</span>
           </div>
 
           <h3 className="font-serif text-[30px] font-semibold leading-tight tracking-tight text-canopy-950">{product.name}</h3>
@@ -88,7 +88,7 @@ export default function ProductQuickView({ product, onClose, onAddToCart }) {
               { icon: Droplets, label: 'Water', value: product.waterSchedule },
               { icon: Wind, label: 'Benefit', value: 'Air Purifying' },
             ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="p-3 rounded-2xl bg-stone-50 border border-stone-100">
+              <div key={label} className="p-3 rounded-2xl bg-linen-50 border border-canopy-950/10">
                 <Icon className="w-4 h-4 text-canopy-700 mb-1" />
                 <div className="text-[10px] font-bold tracking-widest uppercase text-stone-500">{label}</div>
                 <div className="text-[12px] font-semibold text-canopy-950 leading-tight mt-1 line-clamp-2">{value}</div>
@@ -107,7 +107,7 @@ export default function ProductQuickView({ product, onClose, onAddToCart }) {
                   <button
                     key={s.full}
                     onClick={() => setPotSize(s.full)}
-                    className={`p-3 rounded-2xl border text-left transition ${potSize === s.full ? 'bg-canopy-950 text-white border-canopy-950 shadow-soft' : 'bg-white border-stone-100 hover:border-stone-200'}`}
+                    className={`p-3 rounded-2xl border text-left transition ${potSize === s.full ? 'bg-canopy-950 text-white border-canopy-950 shadow-soft' : 'bg-white border-canopy-950/10 hover:border-canopy-950/10'}`}
                   >
                     <div className="text-xs font-semibold">{s.label}</div>
                     <div className="text-[11px] opacity-70">₹{s.price}</div>
@@ -135,17 +135,17 @@ export default function ProductQuickView({ product, onClose, onAddToCart }) {
 
           <div className="space-y-1.5">
             {(product.features || []).slice(0, 3).map((f) => (
-              <div key={f} className="flex items-center gap-2 text-xs font-medium text-stone-700 bg-stone-50 border border-stone-100 rounded-full px-3 py-2">
-                <span className="w-5 h-5 rounded-full bg-white border border-stone-100 flex items-center justify-center"><Check className="w-3 h-3 text-emerald-700" /></span> {f}
+              <div key={f} className="flex items-center gap-2 text-xs font-medium text-stone-700 bg-linen-50 border border-canopy-950/10 rounded-full px-3 py-2">
+                <span className="w-5 h-5 rounded-full bg-white border border-canopy-950/10 flex items-center justify-center"><Check className="w-3 h-3 text-emerald-700" /></span> {f}
               </div>
             ))}
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <div className="flex items-center border border-stone-200 rounded-full h-11 px-1 bg-white">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-9 h-9 rounded-full hover:bg-stone-50 flex items-center justify-center text-sm font-bold">−</button>
+            <div className="flex items-center border border-canopy-950/10 rounded-full h-11 px-1 bg-white">
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-9 h-9 rounded-full hover:bg-linen-50 flex items-center justify-center text-sm font-bold">−</button>
               <span className="w-8 text-center text-sm font-semibold">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="w-9 h-9 rounded-full hover:bg-stone-50 flex items-center justify-center text-sm font-bold">+</button>
+              <button onClick={() => setQty((q) => q + 1)} className="w-9 h-9 rounded-full hover:bg-linen-50 flex items-center justify-center text-sm font-bold">+</button>
             </div>
             <button
               onClick={() => {

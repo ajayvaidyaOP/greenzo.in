@@ -1,19 +1,23 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 
 export default function PromoMarquee({ text }) {
-  const items = Array.from({ length: 12 }).map((_, i) => i);
-  const label = text || 'FREE SHIPPING ₹499+ • 7-DAY HEALTHY GUARANTEE • 14-DAY CAPILLARY RESERVOIR • PUNE ATELIER • RAZORPAY SECURE • CARBON-NEUTRAL PODS';
+  const items = Array.from({ length: 10 }).map((_, i) => i);
+  const label =
+    text ||
+    'Free shipping ₹499+ · 7-day healthy guarantee · 14-day capillary reservoir · grown in Pune · Razorpay secure · carbon-neutral pods';
+
   return (
-    <div className="relative overflow-hidden bg-canopy-950 border-y border-white/10">
-      <div className="marquee-track">
-        {items.map((idx) => (
-          <div key={idx} className="flex items-center gap-4 pr-6 py-2 text-[11px] font-bold tracking-[0.16em] uppercase whitespace-nowrap text-white/90">
-            <span className="w-1 h-1 rounded-full bg-emerald-400" />
-            <span>{label}</span>
-            <Sparkles className="w-3 h-3 text-emerald-300/70" />
-          </div>
-        ))}
+    <div className="relative overflow-hidden border-y border-canopy-950/[0.08] bg-linen-75">
+      <div className="marquee-wrap">
+        <div className="marquee-track">
+          {items.map((idx) => (
+            <div key={idx} className="flex items-center gap-5 whitespace-nowrap py-2.5 pr-5">
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.26em] text-canopy-900/80">{label}</span>
+              <Leaf className="h-3 w-3 shrink-0 text-brass-500" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

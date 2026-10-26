@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Check, Clock, ShoppingBag, Heart, Truck, Leaf, Sparkles } from 'lucide-react';
+import { Star, Check, Clock, ShoppingBag, Heart, Truck, Leaf, Sparkles, Timer } from 'lucide-react';
 import { getPotSwatchClass } from '../lib/api.js';
+import Reveal from './Reveal.jsx';
 
 export default function DealOfTheWeek({ dealProduct, isWishlisted, onToggleWishlist, onAddToCart }) {
   const product = dealProduct || {
@@ -10,49 +11,173 @@ export default function DealOfTheWeek({ dealProduct, isWishlisted, onToggleWishl
   const [potSize, setPotSize] = useState('Medium (5 inch Self-Watering)');
   const [potColor, setPotColor] = useState(product.potColors?.[0] || 'Matte Ivory');
   const [timeLeft, setTimeLeft] = useState({ d: '02', h: '14', m: '36', s: '49' });
+
   useEffect(() => {
     const end = Date.now() + (2 * 86400 + 14 * 3600 + 36 * 60 + 49) * 1000;
-    const t = setInterval(() => { const diff = Math.max(0, end - Date.now()); const d = Math.floor(diff / 86400000); const h = Math.floor((diff % 86400000) / 3600000); const m = Math.floor((diff % 3600000) / 60000); const s = Math.floor((diff % 60000) / 1000); setTimeLeft({ d: String(d).padStart(2,'0'), h: String(h).padStart(2,'0'), m: String(m).padStart(2,'0'), s: String(s).padStart(2,'0') }); }, 1000); return () => clearInterval(t);
+    const t = setInterval(() => {
+      const diff = Math.max(0, end - Date.now());
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft({ d: String(d).padStart(2, '0'), h: String(h).padStart(2, '0'), m: String(m).padStart(2, '0'), s: String(s).padStart(2, '0') });
+    }, 1000);
+    return () => clearInterval(t);
   }, []);
+
   const activePrice = potSize === 'Large (6.5 inch Self-Watering)' ? product.maxPrice : product.price;
+  const discount = Math.round(((product.originalPrice - activePrice) / product.originalPrice) * 100);
 
   return (
-    <section id="deal" className="py-14 lg:py-16 bg-stone-50 border-y border-stone-100">
-      <div className="max-w-[1360px] mx-auto px-5 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
-          <div><div className="inline-flex items-center gap-2"><span className="w-7 h-px bg-stone-300" /><span className="text-[11px] font-bold tracking-[0.18em] uppercase text-terracotta-600">Atelier Batch • Limited</span><span className="px-2 py-1 rounded-full bg-white border border-stone-200 text-[11px] font-semibold">Only 48 left</span></div><h2 className="mt-3 font-serif text-[30px] lg:text-[42px] leading-[0.94] font-semibold tracking-[-0.02em] text-canopy-950">This week&apos;s <span className="italic font-normal">most collected</span> edition</h2></div>
-          <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-full bg-white border border-stone-200 shadow-card"><span className="w-8 h-8 rounded-full bg-stone-50 border border-stone-200 flex items-center justify-center"><Clock className="w-4 h-4 text-terracotta-600" /></span><span className="text-xs font-semibold text-stone-600 hidden sm:inline">Ends in</span><div className="flex items-center gap-1 font-mono text-sm font-bold text-canopy-950"><span className="px-2.5 py-1 rounded-lg bg-stone-50 border border-stone-200">{timeLeft.d}d</span>:<span className="px-2.5 py-1 rounded-lg bg-stone-50 border border-stone-200">{timeLeft.h}h</span>:<span className="px-2.5 py-1 rounded-lg bg-stone-50 border border-stone-200">{timeLeft.m}m</span>:<span className="px-2.5 py-1 rounded-lg bg-canopy-950 text-white">{timeLeft.s}s</span></div></div>
-        </div>
-
-        <div className="rounded-[24px] bg-white border border-stone-200 shadow-card overflow-hidden grid lg:grid-cols-12">
-          <div className="lg:col-span-5 p-5 sm:p-6 bg-linen-50 border-b lg:border-b-0 lg:border-r border-stone-100">
-            <div className="rounded-[16px] overflow-hidden bg-white p-2 border border-stone-200"><img src={product.imageUrl} alt={product.name} className="w-full aspect-[4/3.8] object-cover rounded-[12px]" /></div>
-            <div className="mt-3 flex items-center gap-2 text-xs">
-              <span className="px-2.5 py-1 rounded-full bg-terracotta-600 text-white font-bold">FLAT 23% OFF</span><span className="px-2.5 py-1 rounded-full bg-white border border-stone-200 font-medium flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Free delivery</span><span className="ml-auto text-stone-500 hidden sm:inline">Photo proof before dispatch</span>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-              <div className="px-3 py-2 rounded-xl bg-white border border-stone-200 flex items-center gap-2"><Leaf className="w-4 h-4 text-emerald-600" /> 14-day reservoir</div>
-              <div className="px-3 py-2 rounded-xl bg-white border border-stone-200 flex items-center gap-2"><Sparkles className="w-4 h-4 text-brass-500" /> Collector&apos;s pick</div>
-            </div>
+    <section id="deal" className="relative overflow-hidden bg-linen-50 py-16 lg:py-24">
+      <div className="pointer-events-none absolute -right-32 top-10 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(191,92,55,0.13),transparent_65%)] blur-2xl" />
+      <div className="shell relative">
+        <Reveal className="mb-8 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+          <div className="max-w-[640px]">
+            <span className="eyebrow"><span className="h-px w-7 bg-terracotta-500/70" /> Atelier batch · limited</span>
+            <h2 className="display-section mt-3 text-canopy-950">
+              This week&apos;s most <span className="italic text-terracotta-600">collected</span> edition
+            </h2>
+            <p className="lede mt-3 max-w-[52ch]">
+              One plant, one week, one honest price — hand-picked from the healthiest bench at the nursery.
+            </p>
           </div>
 
-          <div className="lg:col-span-7 p-6 sm:p-8 space-y-4">
-            <div className="flex flex-wrap items-center gap-2"><span className="flex text-brass-500">{[...Array(5)].map((_,i)=><Star key={i} className="w-4 h-4 fill-brass-500" />)}</span><span className="text-xs font-semibold text-stone-700">{product.rating} • {product.reviewCount} verified</span><span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-800 text-[11px] font-semibold">Hydro-Wick Indicator</span></div>
-            <div><p className="italic font-serif text-sm text-stone-500">{product.botanicalName}</p><h3 className="font-serif text-2xl lg:text-[30px] font-semibold tracking-tight text-canopy-950">{product.name}</h3></div>
-            <p className="text-[13.5px] leading-relaxed text-stone-600">{product.description}</p>
-            <div className="grid grid-cols-2 gap-2">{(product.features||[]).map((f)=><div key={f} className="flex items-center gap-2 text-xs font-medium text-canopy-950 bg-stone-50 border border-stone-100 rounded-full px-3 py-2"><span className="w-5 h-5 rounded-full bg-white border border-stone-200 flex items-center justify-center"><Check className="w-3 h-3 text-emerald-700" /></span>{f}</div>)}</div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div><p className="text-[11px] font-bold tracking-[0.12em] uppercase text-stone-500 mb-2">Planter Size</p><div className="grid grid-cols-2 gap-2">{[{label:'Medium 5″', full:'Medium (5 inch Self-Watering)', price:product.price},{label:'Large 6.5″', full:'Large (6.5 inch Self-Watering)', price:product.maxPrice}].map((opt)=><button key={opt.full} onClick={()=>setPotSize(opt.full)} className={`p-3 rounded-2xl border text-left transition ${potSize===opt.full?'bg-canopy-950 text-white border-canopy-950 shadow-card':'bg-white border-stone-200 hover:border-stone-300'}`}><p className="text-xs font-semibold">{opt.label}</p><p className="text-[11px] opacity-70">₹{opt.price}</p></button>)}</div></div>
-              <div><p className="text-[11px] font-bold tracking-[0.12em] uppercase text-stone-500 mb-2">Pot Finish — <span className="text-canopy-950 normal-case tracking-normal font-semibold">{potColor}</span></p><div className="flex items-center gap-2 h-[56px] px-4 rounded-2xl bg-stone-50 border border-stone-200">{(product.potColors||[]).map((c)=><button key={c} title={c} onClick={()=>setPotColor(c)} className={`w-7 h-7 rounded-full border-2 ${getPotSwatchClass(c)} ${potColor===c?'ring-2 ring-offset-2 ring-canopy-950 border-white scale-110':'border-white shadow-sm'}`} />)}</div></div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <div><div className="flex items-baseline gap-2"><span className="text-[28px] font-bold tracking-tight text-canopy-950">₹{activePrice}</span><span className="text-sm line-through text-stone-400">₹{product.originalPrice}</span></div><p className="text-xs font-medium text-emerald-700">Inclusive of hydro-wick pot & soil</p></div>
-              <div className="ml-auto flex items-center gap-2"><button onClick={()=>onAddToCart({ slug:product.slug, productName:product.name, imageUrl:product.imageUrl, potColor, potSize, unitPrice:activePrice, quantity:1, isBundle:false })} className="h-11 px-6 rounded-full bg-canopy-950 hover:bg-black text-white text-sm font-semibold inline-flex items-center gap-2 shadow-card"><ShoppingBag className="w-4 h-4 text-emerald-300" /> Add to Bag</button><button onClick={()=>onToggleWishlist(product.slug)} className={`w-11 h-11 rounded-full border flex items-center justify-center ${isWishlisted?'bg-terracotta-50 border-terracotta-200 text-terracotta-600':'bg-white border-stone-200 text-stone-600'}`}><Heart className={`w-5 h-5 ${isWishlisted?'fill-terracotta-500 text-terracotta-500':''}`} /></button></div>
+          <div className="inline-flex items-center gap-3 rounded-full border border-canopy-950/10 bg-white px-3 py-2 shadow-soft">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-terracotta-50 text-terracotta-600">
+              <Timer className="h-4 w-4" />
+            </span>
+            <span className="hidden text-[10px] font-extrabold uppercase tracking-[0.16em] text-stone-500 sm:inline">Ends in</span>
+            <div className="flex items-center gap-1 font-mono text-[13px] font-bold text-canopy-950 num">
+              {[['d', timeLeft.d], ['h', timeLeft.h], ['m', timeLeft.m]].map(([u, v]) => (
+                <React.Fragment key={u}>
+                  <span className="rounded-lg border border-canopy-950/10 bg-linen-50 px-2 py-1">{v}<span className="ml-0.5 text-[9px] font-semibold text-stone-400">{u}</span></span>
+                  <span className="text-stone-300">:</span>
+                </React.Fragment>
+              ))}
+              <span className="rounded-lg bg-canopy-950 px-2 py-1 text-brass-300">{timeLeft.s}<span className="ml-0.5 text-[9px] font-semibold text-brass-300/60">s</span></span>
             </div>
           </div>
-        </div>
+        </Reveal>
+
+        <Reveal dir="scale" className="overflow-hidden rounded-[28px] border border-canopy-950/10 bg-white shadow-card">
+          <div className="grid lg:grid-cols-12">
+            {/* Media */}
+            <div className="relative border-b border-canopy-950/[0.08] bg-linen-75 p-4 sm:p-6 lg:col-span-5 lg:border-b-0 lg:border-r">
+              <div className="group relative overflow-hidden rounded-[20px] border border-canopy-950/10 bg-white">
+                <img src={product.imageUrl} alt={product.name} className="aspect-[4/3.7] w-full object-cover transition-transform duration-[1400ms] ease-silk group-hover:scale-[1.04]" />
+                <span className="absolute left-3 top-3 rounded-full bg-terracotta-600 px-2.5 py-1 text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-white shadow-sm">
+                  Flat {discount}% off
+                </span>
+                <button
+                  onClick={() => onToggleWishlist(product.slug)}
+                  aria-label="Toggle wishlist"
+                  className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-white/70 bg-linen-50/90 shadow-sm backdrop-blur transition hover:scale-105 ${isWishlisted ? 'text-terracotta-500' : 'text-canopy-900'}`}
+                >
+                  <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-terracotta-500' : ''}`} />
+                </button>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <span className="flex items-center gap-2 rounded-xl border border-canopy-950/10 bg-white px-3 py-2 text-[11px] font-medium text-stone-600">
+                  <Leaf className="h-3.5 w-3.5 text-canopy-600" /> 14-day reservoir
+                </span>
+                <span className="flex items-center gap-2 rounded-xl border border-canopy-950/10 bg-white px-3 py-2 text-[11px] font-medium text-stone-600">
+                  <Truck className="h-3.5 w-3.5 text-canopy-600" /> Free delivery
+                </span>
+              </div>
+              <p className="mt-3 text-center text-[10px] text-stone-400">Photo proof of your exact plant before dispatch</p>
+            </div>
+
+            {/* Details */}
+            <div className="p-6 sm:p-8 lg:col-span-7 lg:p-9">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-brass-500 text-brass-500" />)}
+                </span>
+                <span className="text-[11.5px] font-semibold text-stone-600 num">{product.rating} · {product.reviewCount} verified</span>
+                <span className="tag border border-canopy-700/15 bg-canopy-50 text-canopy-700">Hydro-wick indicator</span>
+              </div>
+
+              <p className="mt-4 font-serif text-[13px] italic text-stone-500">{product.botanicalName}</p>
+              <h3 className="mt-1 font-serif text-[28px] leading-tight text-canopy-950 sm:text-[34px]">{product.name}</h3>
+              <p className="mt-2.5 max-w-[52ch] text-[13px] leading-relaxed text-stone-600">{product.description}</p>
+
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {(product.features || []).map((f) => (
+                  <span key={f} className="inline-flex items-center gap-1.5 rounded-full border border-canopy-950/10 bg-linen-50 px-3 py-1.5 text-[10.5px] font-medium text-canopy-900">
+                    <Check className="h-3 w-3 text-canopy-600" /> {f}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="mb-2 text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-stone-400">Planter size</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { label: 'Medium 5″', full: 'Medium (5 inch Self-Watering)', price: product.price },
+                      { label: 'Large 6.5″', full: 'Large (6.5 inch Self-Watering)', price: product.maxPrice }
+                    ].map((opt) => (
+                      <button
+                        key={opt.full}
+                        onClick={() => setPotSize(opt.full)}
+                        className={`rounded-2xl border p-3 text-left transition-all duration-500 ease-silk ${
+                          potSize === opt.full
+                            ? 'border-canopy-950 bg-canopy-950 text-linen-50 shadow-soft'
+                            : 'border-canopy-950/10 bg-white hover:border-canopy-950/25'
+                        }`}
+                      >
+                        <p className="text-[11.5px] font-semibold">{opt.label}</p>
+                        <p className={`text-[10.5px] num ${potSize === opt.full ? 'text-brass-300' : 'text-stone-500'}`}>₹{opt.price}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-stone-400">
+                    Pot finish · <span className="normal-case tracking-normal text-canopy-900">{potColor}</span>
+                  </p>
+                  <div className="flex h-[62px] items-center gap-2.5 rounded-2xl border border-canopy-950/10 bg-linen-50 px-4">
+                    {(product.potColors || []).map((c) => (
+                      <button
+                        key={c}
+                        title={c}
+                        onClick={() => setPotColor(c)}
+                        className={`h-7 w-7 rounded-full border-2 transition duration-300 ${getPotSwatchClass(c)} ${
+                          potColor === c ? 'scale-110 border-canopy-950 ring-2 ring-canopy-950/15 ring-offset-1' : 'border-white shadow-sm hover:scale-105'
+                        }`}
+                      />
+                    ))}
+                    <span className="ml-auto text-[10px] text-stone-400">Matte glaze</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-canopy-950/[0.08] pt-5">
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-serif text-[32px] leading-none tracking-tight text-canopy-950 num">₹{activePrice}</span>
+                    <span className="text-[13px] text-stone-400 line-through num">₹{product.originalPrice}</span>
+                  </div>
+                  <p className="mt-1 text-[10.5px] font-medium text-canopy-700">Inclusive of hydro-wick planter & substrate</p>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => onAddToCart({ slug: product.slug, productName: product.name, imageUrl: product.imageUrl, potColor, potSize, unitPrice: activePrice, quantity: 1, isBundle: false })}
+                    className="btn btn-dark btn-md group/btn"
+                  >
+                    <ShoppingBag className="h-4 w-4 text-brass-300" /> Add to bag
+                  </button>
+                  <span className="hidden items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-stone-400 sm:flex">
+                    <Sparkles className="h-3 w-3 text-brass-500" /> Collector&apos;s pick
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -202,10 +202,10 @@ export function LiveStoreDashboard({ isOpen, onClose }) {
 
               {/* Recent Orders Table */}
               <div className="bg-white rounded-2xl border border-canopy-900/10 overflow-hidden">
-                <div className="px-5 py-3 bg-linen-100/60 border-b border-canopy-900/8 text-xs font-bold uppercase tracking-wider text-canopy-800">
+                <div className="px-5 py-3 bg-linen-100/60 border-b border-canopy-900/10 text-xs font-bold uppercase tracking-wider text-canopy-800">
                   Recent Live Orders
                 </div>
-                <div className="divide-y divide-canopy-900/8">
+                <div className="divide-y divide-canopy-900/10">
                   {data.recentOrders.map((o) => (
                     <div
                       key={o.id}
@@ -234,10 +234,10 @@ export function LiveStoreDashboard({ isOpen, onClose }) {
 
               {/* Consultations */}
               <div className="bg-white rounded-2xl border border-canopy-900/10 overflow-hidden">
-                <div className="px-5 py-3 bg-linen-100/60 border-b border-canopy-900/8 text-xs font-bold uppercase tracking-wider text-canopy-800">
+                <div className="px-5 py-3 bg-linen-100/60 border-b border-canopy-900/10 text-xs font-bold uppercase tracking-wider text-canopy-800">
                   Scheduled Plant Consultations
                 </div>
-                <div className="divide-y divide-canopy-900/8">
+                <div className="divide-y divide-canopy-900/10">
                   {data.recentConsultations.map((c) => (
                     <div
                       key={c.id}

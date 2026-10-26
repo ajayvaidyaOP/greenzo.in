@@ -575,7 +575,7 @@ export default function AdminPanel({
                           <th className="py-3.5 px-4 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-canopy-900/8 text-xs">
+                      <tbody className="divide-y divide-canopy-900/10 text-xs">
                         {dashboard.products.map((prod) => {
                           const edit = inlineEdits[prod.id] || {
                             price: prod.price,
@@ -1001,7 +1001,7 @@ export default function AdminPanel({
                     <div className="px-5 py-3.5 bg-linen-100/70 border-b border-canopy-900/10 text-xs font-bold uppercase tracking-wider text-canopy-800">
                       Customer Orders & Razorpay Payment Status ({dashboard.orders.length})
                     </div>
-                    <div className="divide-y divide-canopy-900/8">
+                    <div className="divide-y divide-canopy-900/10">
                       {dashboard.orders.map((o) => (
                         <div
                           key={o.id}
@@ -1080,7 +1080,7 @@ export default function AdminPanel({
                     <div className="px-5 py-3.5 bg-linen-100/70 border-b border-canopy-900/10 text-xs font-bold uppercase tracking-wider text-canopy-800">
                       Botanist Consultation Requests ({dashboard.consultations.length})
                     </div>
-                    <div className="divide-y divide-canopy-900/8">
+                    <div className="divide-y divide-canopy-900/10">
                       {dashboard.consultations.map((c) => (
                         <div
                           key={c.id}
