@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Star, Quote, CheckCircle2, Plus, X, Sparkles } from 'lucide-react';
+import { Star, CheckCircle2, Plus, X, Sparkles, Quote } from 'lucide-react';
 import { api } from '../lib/api.js';
+import Reveal from './Reveal.jsx';
 
 export default function TestimonialsSection({ reviews = [], products = [], onReviewAdded, onNotify }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -10,7 +11,7 @@ export default function TestimonialsSection({ reviews = [], products = [], onRev
     city: 'Pune',
     rating: 5,
     plantPurchased: products[0]?.name || '4-Plant Atelier Box @ ₹999',
-    comment: '',
+    comment: ''
   });
 
   const handleSubmit = async (e) => {
@@ -30,102 +31,128 @@ export default function TestimonialsSection({ reviews = [], products = [], onRev
     }
   };
 
-  return (
-    <section className="py-16 lg:py-20 bg-linen-75 border-y border-stone-100">
-      <div className="max-w-[1360px] mx-auto px-5 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-          <div className="max-w-[640px]">
-            <div className="inline-flex items-center gap-2">
-              <span className="w-7 h-px bg-canopy-900/20" />
-              <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-canopy-700">Verified Plant Parents</span>
-              <span className="px-2.5 py-1 rounded-full bg-white border border-stone-100 text-[11px] font-semibold text-canopy-800">2,847+ delivered</span>
-            </div>
-            <h2 className="mt-3 font-serif text-[32px] lg:text-[44px] leading-[0.95] tracking-[-0.02em] font-semibold text-canopy-950">
-              Collectors speak — <span className="italic font-normal">quiet joy</span>, cleaner air
-            </h2>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="flex text-brass-500">{[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-brass-500" />)}</span>
-              <span className="text-xs font-semibold text-stone-700">4.9 / 5 average across Pune & India</span>
-            </div>
-          </div>
+  const inputCls = 'w-full rounded-xl border border-canopy-950/10 bg-linen-50 px-3.5 text-[13px] text-canopy-950 placeholder:text-stone-400 transition focus:border-canopy-950/30 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brass-500/10';
 
-          <button
-            onClick={() => setModalOpen(true)}
-            className="self-start lg:self-auto h-10 px-5 rounded-full bg-white border border-stone-200 hover:border-canopy-900 text-canopy-950 text-xs font-semibold inline-flex items-center gap-2 hover:bg-canopy-950 hover:text-white transition"
-          >
-            <Plus className="w-3.5 h-3.5" /> Write a Review
-          </button>
+  return (
+    <section className="border-y border-canopy-950/[0.08] bg-linen-75 py-16 lg:py-24">
+      <div className="shell">
+        <div className="mb-9 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <Reveal className="max-w-[640px]">
+            <span className="eyebrow"><span className="h-px w-7 bg-brass-500/70" /> Verified plant parents</span>
+            <h2 className="display-section mt-3 text-canopy-950">
+              Collectors speak — <span className="italic text-canopy-700">quiet joy,</span> cleaner air
+            </h2>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-brass-500 text-brass-500" />)}
+              </span>
+              <span className="text-[12px] font-semibold text-canopy-950 num">4.9 / 5</span>
+              <span className="h-3 w-px bg-canopy-950/15" />
+              <span className="text-[11.5px] text-stone-500">2,847+ plants delivered across India</span>
+            </div>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <button onClick={() => setModalOpen(true)} className="btn btn-outline btn-sm group/btn">
+              <Plus className="h-3.5 w-3.5" /> Write a review
+            </button>
+          </Reveal>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {reviews.slice(0, 4).map((rev, i) => (
-            <div key={rev.id || i} className="bg-white rounded-[20px] p-6 border border-stone-100 shadow-soft hover:shadow-soft-lg transition flex flex-col justify-between">
+            <Reveal
+              key={rev.id || i}
+              delay={i * 80}
+              as="figure"
+              className="group flex flex-col justify-between rounded-[22px] border border-canopy-950/[0.09] bg-white p-5 shadow-soft transition-all duration-500 ease-silk hover:-translate-y-1 hover:shadow-soft-lg"
+            >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="flex text-brass-500">{[...Array(rev.rating || 5)].map((_, idx) => <Star key={idx} className="w-3.5 h-3.5 fill-brass-500" />)}</span>
-                  <span className="w-8 h-8 rounded-full bg-linen-50 flex items-center justify-center">
-                    <Quote className="w-4 h-4 text-stone-400" />
+                <div className="flex items-start justify-between">
+                  <span className="flex items-center gap-0.5">
+                    {[...Array(rev.rating || 5)].map((_, idx) => <Star key={idx} className="h-3.5 w-3.5 fill-brass-500 text-brass-500" />)}
                   </span>
+                  <Quote className="h-5 w-5 text-brass-300 transition-transform duration-500 group-hover:-rotate-12" />
                 </div>
-                <p className="font-serif text-[15px] leading-relaxed text-canopy-950">“{rev.comment}”</p>
+                <blockquote className="mt-3 font-serif text-[15px] leading-[1.55] text-canopy-950">
+                  “{rev.comment}”
+                </blockquote>
               </div>
 
-              <div className="pt-5 mt-6 border-t border-stone-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-canopy-950 text-white font-serif font-bold text-sm flex items-center justify-center shrink-0">
+              <figcaption className="mt-5 flex items-center gap-3 border-t border-canopy-950/[0.07] pt-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-canopy-950 font-serif text-[13px] font-semibold text-brass-300 ring-1 ring-brass-500/25">
                   {rev.avatarInitials || rev.customerName?.slice(0, 2)?.toUpperCase() || 'GZ'}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-canopy-950 truncate">{rev.customerName}</p>
-                  <p className="text-[11px] text-stone-500 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {rev.city} • Verified
-                  </p>
-                  <p className="text-[10.5px] text-stone-500 truncate">{rev.plantPurchased}</p>
-                </div>
-              </div>
-            </div>
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[11.5px] font-bold text-canopy-950">{rev.customerName}</span>
+                  <span className="flex items-center gap-1 text-[10.5px] text-stone-500">
+                    <CheckCircle2 className="h-3 w-3 text-canopy-600" /> {rev.city} · Verified
+                  </span>
+                  <span className="block truncate text-[10px] text-stone-400">{rev.plantPurchased}</span>
+                </span>
+              </figcaption>
+            </Reveal>
           ))}
         </div>
 
-        <div className="mt-6 text-center">
-          <span className="inline-flex items-center gap-2 text-xs text-stone-500">
-            <Sparkles className="w-3.5 h-3.5 text-canopy-700" /> All reviews are from verified Razorpay orders • Photos available on request
+        <div className="mt-7 flex items-center justify-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-canopy-950/10 bg-white/70 px-4 py-2 text-[10.5px] text-stone-500">
+            <Sparkles className="h-3 w-3 text-brass-500" /> Every review is tied to a verified Razorpay or COD order
           </span>
         </div>
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div onClick={() => setModalOpen(false)} className="absolute inset-0 bg-canopy-950/60 backdrop-blur-sm" />
-          <form onSubmit={handleSubmit} className="relative w-full max-w-md bg-white rounded-[24px] p-6 shadow-elevated space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-2xl font-semibold text-canopy-950">Share Your Atelier Experience</h3>
-              <button type="button" onClick={() => setModalOpen(false)} className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center">
-                <X className="w-4 h-4" />
+        <div className="fixed inset-0 z-[85] flex items-center justify-center p-4">
+          <div onClick={() => setModalOpen(false)} className="absolute inset-0 animate-fade-in bg-canopy-950/60 backdrop-blur-sm" />
+          <form onSubmit={handleSubmit} className="relative w-full max-w-md animate-scale-in space-y-4 rounded-[26px] border border-canopy-950/10 bg-linen-50 p-6 shadow-elevated">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="eyebrow">Share your experience</span>
+                <h3 className="mt-1.5 font-serif text-[24px] leading-tight text-canopy-950">How is your atelier doing?</h3>
+              </div>
+              <button type="button" onClick={() => setModalOpen(false)} aria-label="Close" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-canopy-950/10 bg-white text-canopy-900">
+                <X className="h-4 w-4" />
               </button>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">Your Name</label>
-                <input required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} placeholder="Rohan Joshi" className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-canopy-900" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">City</label>
-                <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Pune" className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-canopy-900" />
-              </div>
+              <label className="block">
+                <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-stone-500">Your name</span>
+                <input required value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} placeholder="Rohan Joshi" className={`${inputCls} h-10`} />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-stone-500">City</span>
+                <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Pune" className={`${inputCls} h-10`} />
+              </label>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Plant Purchased</label>
-              <select value={form.plantPurchased} onChange={(e) => setForm({ ...form, plantPurchased: e.target.value })} className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm bg-white">
+
+            <label className="block">
+              <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-stone-500">Plant purchased</span>
+              <select value={form.plantPurchased} onChange={(e) => setForm({ ...form, plantPurchased: e.target.value })} className={`${inputCls} h-10`}>
                 <option value="4-Plant Atelier Box @ ₹999">4-Plant Atelier Box @ ₹999</option>
                 {products.map((p) => <option key={p.slug} value={p.name}>{p.name}</option>)}
               </select>
-            </div>
+            </label>
+
             <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">Your Review</label>
-              <textarea required rows={3} value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} placeholder="How did your plants arrive? How is the hydro-wick working?" className="w-full p-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-canopy-900" />
+              <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-stone-500">Rating</span>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button key={n} type="button" onClick={() => setForm({ ...form, rating: n })} aria-label={`${n} stars`}>
+                    <Star className={`h-6 w-6 transition ${n <= form.rating ? 'fill-brass-500 text-brass-500' : 'text-stone-300'}`} />
+                  </button>
+                ))}
+              </div>
             </div>
-            <button type="submit" disabled={submitting} className="w-full h-11 rounded-full bg-canopy-950 hover:bg-black text-white text-sm font-semibold transition">
-              {submitting ? 'Publishing...' : 'Publish Review'}
+
+            <label className="block">
+              <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-stone-500">Your review</span>
+              <textarea required rows={3} value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} placeholder="How did your plants arrive? How is the hydro-wick working?" className={`${inputCls} py-2.5`} />
+            </label>
+
+            <button type="submit" disabled={submitting} className="btn btn-dark btn-md w-full">
+              {submitting ? 'Publishing…' : 'Publish review'}
             </button>
           </form>
         </div>

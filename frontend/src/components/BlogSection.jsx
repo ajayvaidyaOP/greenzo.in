@@ -1,73 +1,83 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, X, BookOpen } from 'lucide-react';
+import { ArrowUpRight, X, BookOpen, Clock } from 'lucide-react';
+import Reveal from './Reveal.jsx';
 
 export default function BlogSection({ blogs = [] }) {
   const [activeArticle, setActiveArticle] = useState(null);
 
   return (
-    <section id="journal" className="py-16 lg:py-20 bg-white border-t border-stone-100">
-      <div className="max-w-[1360px] mx-auto px-5 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-          <div className="max-w-[640px]">
-            <div className="inline-flex items-center gap-2">
-              <span className="w-7 h-px bg-canopy-900/20" />
-              <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-canopy-700">Botanical Journal</span>
-            </div>
-            <h2 className="mt-3 font-serif text-[32px] lg:text-[42px] leading-[0.95] tracking-[-0.02em] font-semibold text-canopy-950">
-              Field notes from the <span className="italic font-normal">Pune glasshouse</span>
+    <section id="journal" className="border-t border-canopy-950/[0.08] bg-white py-16 lg:py-24">
+      <div className="shell">
+        <div className="mb-9 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <Reveal className="max-w-[640px]">
+            <span className="eyebrow"><span className="h-px w-7 bg-brass-500/70" /> Botanical journal</span>
+            <h2 className="display-section mt-3 text-canopy-950">
+              Field notes from the <span className="italic text-canopy-700">Pune glasshouse</span>
             </h2>
-          </div>
-          <p className="text-xs font-medium text-stone-500 max-w-md">Written by our horticulture & biophilic design team — practical, seasonal, zero jargon.</p>
+          </Reveal>
+          <Reveal delay={100} className="max-w-sm">
+            <p className="text-[13px] leading-relaxed text-stone-600">
+              Written by our horticulture and biophilic design team — practical, seasonal, zero jargon.
+            </p>
+          </Reveal>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {blogs.map((post) => (
-            <article
+        <div className="grid gap-5 md:grid-cols-3 lg:gap-6">
+          {blogs.map((post, i) => (
+            <Reveal
               key={post.slug}
+              delay={i * 90}
+              as="article"
               onClick={() => setActiveArticle(post)}
-              className="group cursor-pointer flex flex-col rounded-[18px] overflow-hidden bg-white border border-stone-100 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300"
+              className="group flex cursor-pointer flex-col overflow-hidden rounded-[22px] border border-canopy-950/[0.09] bg-white shadow-soft transition-all duration-500 ease-silk hover:-translate-y-1.5 hover:shadow-soft-lg"
             >
-              <div className="overflow-hidden aspect-[16/10.5] bg-stone-50">
-                <img src={post.imageUrl} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.05] transition duration-700" />
-              </div>
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.08em] uppercase text-canopy-700">
-                  <span className="px-2 py-1 rounded-full bg-linen-100">{post.category}</span>
-                  <span className="text-stone-300">•</span>
-                  <span className="text-stone-500 tracking-normal font-medium normal-case">{post.readTime}</span>
-                </div>
-                <h3 className="font-serif text-[20px] font-semibold leading-snug text-canopy-950 mt-3 group-hover:text-canopy-800 transition line-clamp-2">
-                  {post.title}
-                </h3>
-                <p className="text-[13px] leading-relaxed text-stone-600 mt-2 line-clamp-2">{post.excerpt}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-canopy-950 group-hover:gap-2 transition-all">
-                  Read guide <span className="w-6 h-6 rounded-full bg-canopy-950 text-white flex items-center justify-center group-hover:bg-black transition"><ArrowUpRight className="w-3 h-3" /></span>
+              <div className="relative aspect-[16/10.5] overflow-hidden bg-linen-100">
+                <img src={post.imageUrl} alt={post.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1300ms] ease-silk group-hover:scale-[1.05]" />
+                <span className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.14em] text-canopy-950 glass-panel">
+                  {post.category}
                 </span>
               </div>
-            </article>
+              <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-500">
+                  <Clock className="h-3 w-3 text-brass-600" /> {post.readTime}
+                  <span className="h-2.5 w-px bg-canopy-950/15" />
+                  <span className="truncate">{post.author}</span>
+                </div>
+                <h3 className="mt-2.5 line-clamp-2 font-serif text-[19px] leading-snug text-canopy-950 transition-colors group-hover:text-canopy-700">
+                  {post.title}
+                </h3>
+                <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-stone-600">{post.excerpt}</p>
+                <span className="mt-auto flex items-center gap-2 pt-4 text-[11px] font-bold uppercase tracking-[0.1em] text-canopy-950">
+                  Read guide
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-canopy-950 text-linen-50 transition-all duration-500 group-hover:bg-brass-500 group-hover:text-canopy-950">
+                    <ArrowUpRight className="h-3 w-3" />
+                  </span>
+                </span>
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
 
       {activeArticle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div onClick={() => setActiveArticle(null)} className="absolute inset-0 bg-canopy-950/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-2xl max-h-[88vh] bg-white rounded-[24px] shadow-elevated overflow-hidden flex flex-col border border-stone-100">
-            <div className="relative h-56 sm:h-64 shrink-0">
-              <img src={activeArticle.imageUrl} alt={activeArticle.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-canopy-950/85 via-canopy-950/20 to-transparent" />
-              <button onClick={() => setActiveArticle(null)} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 backdrop-blur text-white flex items-center justify-center hover:bg-black/70">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-[85] flex items-center justify-center p-4">
+          <div onClick={() => setActiveArticle(null)} className="absolute inset-0 animate-fade-in bg-canopy-950/70 backdrop-blur-sm" />
+          <div className="relative flex max-h-[88vh] w-full max-w-2xl animate-scale-in flex-col overflow-hidden rounded-[26px] border border-canopy-950/10 bg-linen-50 shadow-elevated">
+            <div className="relative h-56 shrink-0 sm:h-64">
+              <img src={activeArticle.imageUrl} alt={activeArticle.title} className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-canopy-950/90 via-canopy-950/25 to-transparent" />
+              <button onClick={() => setActiveArticle(null)} aria-label="Close article" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-canopy-950/50 text-white backdrop-blur transition hover:bg-canopy-950">
+                <X className="h-4 w-4" />
               </button>
-              <div className="absolute bottom-5 left-6 right-6 text-white">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-emerald-300">
-                  <BookOpen className="w-3.5 h-3.5" /> {activeArticle.category} • {activeArticle.readTime}
+              <div className="absolute inset-x-6 bottom-5 text-linen-50">
+                <span className="inline-flex items-center gap-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.2em] text-brass-300">
+                  <BookOpen className="h-3.5 w-3.5" /> {activeArticle.category} · {activeArticle.readTime}
                 </span>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium mt-1 leading-tight">{activeArticle.title}</h3>
+                <h3 className="mt-1.5 font-serif text-[24px] leading-tight sm:text-[28px]">{activeArticle.title}</h3>
               </div>
             </div>
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-4 text-[14.5px] leading-relaxed text-stone-700">
-              <p className="text-xs font-semibold text-stone-500 border-b border-stone-100 pb-3">By {activeArticle.author}</p>
+            <div className="space-y-4 overflow-y-auto p-6 text-[14px] leading-relaxed text-stone-700 sm:p-8">
+              <p className="border-b border-canopy-950/10 pb-3 text-[10px] font-extrabold uppercase tracking-[0.16em] text-stone-400">By {activeArticle.author}</p>
               {(activeArticle.content || []).map((para, idx) => <p key={idx}>{para}</p>)}
             </div>
           </div>

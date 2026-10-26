@@ -29,6 +29,17 @@ Full-stack e-commerce platform for **Greenzo.in (Empire Agro Nursery, Pune)** fe
   - **Offers & Promo Codes Manager**: Create `%` or flat `₹` festival coupons (`DIWALI20`, `GREENZO10`) and pin them live to the homepage offer ticker & cart drawer.
   - **Store & Combo Configurator**: Customize the Top Announcement Bar, Combo Box price (`₹999` or custom), Free Shipping threshold, and Razorpay keys live.
 
+## Design System — "Botanical Atelier"
+
+A warm, editorial storefront language built on travertine paper, deep forest and antique brass.
+
+- **Palette** — `linen` (warm paper backgrounds), `canopy` (deep forest ink & dark surfaces), `brass` (signature accent), `terracotta` (urgency/deals), warm `stone` neutrals. Defined in `frontend/tailwind.config.js`.
+- **Typography** — *Fraunces* (variable serif) for display headlines, *Manrope* for UI text. Section headings share the `.display-section` / `.eyebrow` pattern with italic accent words.
+- **Components** — reusable `.btn-*`, `.chip`, `.card-surface`, `.glass-panel`, `.tag`, `.hover-lift` and layout helpers (`.shell`, `.section-y`) live in `frontend/src/index.css`.
+- **Motion** — `Reveal.jsx` provides scroll-triggered entrances (`up`, `left`, `right`, `scale`, `mask`) via `IntersectionObserver`; it animates the independent `translate`/`scale` properties so it never clashes with Tailwind hover transforms. All motion respects `prefers-reduced-motion`.
+- **Navigation** — sticky glass header with scroll progress, rotating announcement ribbon, category mega-menu, ⌘K / Ctrl+K command-palette search, and an animated mobile drawer.
+- **Micro-interactions** — product cards cross-fade to a second photo on hover, quick-add slides up, reel selector shows playback progress, cart includes a shipping-progress meter and a bag → delivery → confirm stepper.
+
 ## Quick Start
 
 ```bash
