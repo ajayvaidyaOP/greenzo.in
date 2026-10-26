@@ -108,11 +108,14 @@ router.get('/me', requireAuth, (req, res) => {
     `)
     .all(req.user.id, req.user.email)
     .map((o) => {
-      const items = db
-        .prepare('SELECT * FROM order_items WHERE order_id = ?')
+        const items = db
+        .prepare('SELECT oi.*, p.slug AS product_slug, p.image_url AS image_url FROM order_items oi LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id = ?')
         .all(o.id)
         .map((it) => ({
           id: it.id,
+          productId: it.product_id,
+          slug: it.product_slug || '',
+          imageUrl: it.image_url || '/images/hero-1.jpg',
           productName: it.product_name,
           potColor: it.pot_color,
           potSize: it.pot_size,
@@ -124,6 +127,10 @@ router.get('/me', requireAuth, (req, res) => {
       return {
         id: o.id,
         orderNumber: o.order_number,
+        customerName: o.customer_name,
+        customerPhone: o.customer_phone,
+        customerEmail: o.customer_email,
+        couponCode: o.coupon_code,
         totalAmount: o.total_amount,
         subtotal: o.subtotal,
         discountAmount: o.discount_amount,
@@ -135,6 +142,11 @@ router.get('/me', requireAuth, (req, res) => {
         city: o.city,
         pincode: o.pincode,
         shippingAddress: o.shipping_address,
+        isGift: Boolean(o.is_gift),
+        giftRecipient: o.gift_recipient || '',
+        giftOccasion: o.gift_occasion || '',
+        giftMessage: o.gift_message || '',
+        giftSender: o.gift_sender || '',
         createdAt: o.created_at,
         items
       };

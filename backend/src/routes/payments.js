@@ -100,6 +100,11 @@ router.post('/razorpay/verify-and-place', (req, res) => {
     pincode,
     couponCode = '',
     notes = '',
+    isGift = false,
+    giftRecipient = '',
+    giftOccasion = '',
+    giftMessage = '',
+    giftSender = '',
     items = []
   } = req.body || {};
 
@@ -160,6 +165,11 @@ router.post('/razorpay/verify-and-place', (req, res) => {
       razorpayPaymentId: verifiedPaymentId,
       razorpaySignature: verifiedSignature,
       notes,
+      isGift,
+      giftRecipient,
+      giftOccasion,
+      giftMessage,
+      giftSender,
       pricing
     });
 

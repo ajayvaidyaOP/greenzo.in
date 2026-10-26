@@ -130,10 +130,16 @@ export function persistOrderInDb({
   razorpayPaymentId = null,
   razorpaySignature = null,
   notes = '',
+  isGift = false,
+  giftRecipient = '',
+  giftOccasion = '',
+  giftMessage = '',
+  giftSender = '',
   pricing
 }) {
   const randSuffix = Math.floor(1000 + Math.random() * 9000);
   const orderNumber = `GRZ-2610-${randSuffix}`;
+  const createdAt = new Date().toISOString();
 
   db.exec('BEGIN');
   try {
@@ -142,8 +148,8 @@ export function persistOrderInDb({
         order_number, user_id, customer_name, customer_phone, customer_email, shipping_address,
         city, pincode, payment_method, payment_status, razorpay_order_id, razorpay_payment_id,
         razorpay_signature, coupon_code, subtotal, discount_amount, shipping_fee, total_amount,
-        status, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?)
+        status, notes, is_gift, gift_recipient, gift_occasion, gift_message, gift_sender
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, ?, ?, ?, ?, ?)
     `);
 
     const orderResult = insertOrder.run(
@@ -165,7 +171,12 @@ export function persistOrderInDb({
       pricing.discountAmount,
       pricing.shippingFee,
       pricing.totalAmount,
-      String(notes || '').trim()
+      String(notes || '').trim(),
+      isGift ? 1 : 0,
+      String(giftRecipient || '').trim(),
+      String(giftOccasion || '').trim(),
+      String(giftMessage || '').trim(),
+      String(giftSender || '').trim()
     );
 
     const orderId = Number(orderResult.lastInsertRowid);
@@ -205,19 +216,31 @@ export function persistOrderInDb({
       orderNumber,
       customerName: String(customerName).trim(),
       customerPhone: String(customerPhone).trim(),
+      customerEmail: String(customerEmail || '').trim(),
+      shippingAddress: String(shippingAddress).trim(),
       city: String(city).trim(),
       pincode: String(pincode).trim(),
       paymentMethod,
       paymentStatus,
       razorpayPaymentId,
+      couponCode: pricing.appliedCouponCode,
       subtotal: pricing.subtotal,
       discountAmount: pricing.discountAmount,
       shippingFee: pricing.shippingFee,
       totalAmount: pricing.totalAmount,
       status: 'CONFIRMED',
-      estimatedDelivery: String(city).toLowerCase().includes('pune')
-        ? 'Express Nursery Dispatch • 24–48 Hours'
-        : 'Safe Eco-Box Delivery • 3–5 Business Days',
+      isGift: Boolean(isGift),
+      giftRecipient: String(giftRecipient || '').trim(),
+      giftOccasion: String(giftOccasion || '').trim(),
+      giftMessage: String(giftMessage || '').trim(),
+      giftSender: String(giftSender || '').trim(),
+      createdAt,
+      estimatedDelivery:
+        String(pincode).startsWith('411') || String(pincode).startsWith('412') || String(city).toLowerCase().includes('pune')
+          ? 'Same-Day Pune Dispatch • Tomorrow Delivery'
+          : ['400', '401', '410'].includes(String(pincode).slice(0, 3))
+          ? 'Western Express • 1–2 Business Days'
+          : 'Safe Honeycomb Pod • 3–5 Business Days',
       items: pricing.normalizedItems
     };
   } catch (err) {
@@ -239,6 +262,11 @@ router.post('/', (req, res) => {
     paymentMethod = 'COD',
     couponCode = '',
     notes = '',
+    isGift = false,
+    giftRecipient = '',
+    giftOccasion = '',
+    giftMessage = '',
+    giftSender = '',
     items = []
   } = req.body || {};
 
@@ -265,6 +293,11 @@ router.post('/', (req, res) => {
       paymentMethod: paymentMethod || 'COD',
       paymentStatus: 'PENDING',
       notes,
+      isGift,
+      giftRecipient,
+      giftOccasion,
+      giftMessage,
+      giftSender,
       pricing
     });
 
@@ -309,16 +342,25 @@ router.get('/track/:query', (req, res) => {
     order: {
       orderNumber: order.order_number,
       customerName: order.customer_name,
+      customerPhone: order.customer_phone,
+      customerEmail: order.customer_email,
+      shippingAddress: order.shipping_address,
       city: order.city,
       pincode: order.pincode,
       paymentMethod: order.payment_method,
       paymentStatus: order.payment_status,
       razorpayPaymentId: order.razorpay_payment_id,
+      couponCode: order.coupon_code,
       subtotal: order.subtotal,
       discountAmount: order.discount_amount,
       shippingFee: order.shipping_fee,
       totalAmount: order.total_amount,
       status: order.status,
+      isGift: Boolean(order.is_gift),
+      giftRecipient: order.gift_recipient || '',
+      giftOccasion: order.gift_occasion || '',
+      giftMessage: order.gift_message || '',
+      giftSender: order.gift_sender || '',
       createdAt: order.created_at,
       items
     }

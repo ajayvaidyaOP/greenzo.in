@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Search, PackageCheck, Database, RefreshCw, IndianRupee } from 'lucide-react';
+import { X, Search, PackageCheck, Database, RefreshCw, IndianRupee, Gift, Printer } from 'lucide-react';
 import { api } from '../lib/api.js';
+import { buildWhatsAppUrl, WhatsAppIcon } from '../lib/whatsapp.jsx';
 
-export function TrackOrderModal({ isOpen, onClose }) {
+export function TrackOrderModal({ isOpen, onClose, storeConfig = {}, onOpenReceipt }) {
   const [query, setQuery] = useState('GRZ-2610-4821');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -95,6 +96,28 @@ export function TrackOrderModal({ isOpen, onClose }) {
             <div className="border-t border-canopy-900/10 pt-2 flex justify-between font-bold text-sm text-canopy-950">
               <span>Total ({result.paymentMethod})</span>
               <span>₹{result.totalAmount}</span>
+            </div>
+            {result.isGift && (
+              <p className="flex items-center gap-1.5 text-xs font-bold text-canopy-700">
+                <Gift className="h-3.5 w-3.5" /> Gift Card Included ({result.giftOccasion || 'Gift'})
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => onOpenReceipt?.(result)}
+                className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full border border-canopy-950/15 bg-white px-3 text-xs font-bold text-canopy-950 transition hover:bg-canopy-50"
+              >
+                <Printer className="h-3.5 w-3.5 text-canopy-700" /> View / Print Invoice
+              </button>
+              <a
+                href={buildWhatsAppUrl(storeConfig, `Hi Greenzo Pune! Tracking my order ${result.orderNumber} (${result.status}). Can you share an update?`)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-whatsapp px-3 text-xs font-bold text-white transition hover:bg-whatsapp-dark"
+              >
+                <WhatsAppIcon className="h-3.5 w-3.5" /> WhatsApp Update
+              </a>
             </div>
           </div>
         )}
