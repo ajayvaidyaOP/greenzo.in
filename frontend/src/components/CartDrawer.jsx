@@ -1,35 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  X,
-  ShoppingBag,
-  Trash2,
-  Tag,
-  ArrowRight,
-  ArrowLeft,
-  CheckCircle2,
-  Truck,
-  Sparkles,
-  ShieldCheck,
-  CreditCard,
-  Banknote
-} from 'lucide-react';
+import { X, ShoppingBag, Trash2, Tag, ArrowRight, ArrowLeft, CheckCircle2, Truck, Sparkles, ShieldCheck, CreditCard, Banknote, Leaf } from 'lucide-react';
 import { api } from '../lib/api.js';
 import RazorpayGatewayModal, { loadRazorpaySdk } from './RazorpayGatewayModal.jsx';
 
-export default function CartDrawer({
-  isOpen,
-  onClose,
-  storeConfig = {},
-  activeOffers = [],
-  currentUser,
-  cart = [],
-  onUpdateQty,
-  onRemoveItem,
-  onClearCart,
-  onOpenBundle,
-  onNotify
-}) {
-  const [step, setStep] = useState('cart'); // cart | checkout | success
+export default function CartDrawer({ isOpen, onClose, storeConfig = {}, activeOffers = [], currentUser, cart = [], onUpdateQty, onRemoveItem, onClearCart, onOpenBundle, onNotify }) {
+  const [step, setStep] = useState('cart');
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
@@ -51,10 +26,9 @@ export default function CartDrawer({
     city: 'Pune',
     pincode: '411001',
     paymentMethod: razorpayEnabled ? 'RAZORPAY' : 'COD',
-    notes: ''
+    notes: '',
   });
 
-  // Pre-fill customer profile when logged in
   useEffect(() => {
     if (currentUser) {
       setCustomer((prev) => ({
@@ -64,14 +38,14 @@ export default function CartDrawer({
         customerEmail: prev.customerEmail || currentUser.email || '',
         shippingAddress: prev.shippingAddress || currentUser.defaultAddress || '',
         city: currentUser.defaultCity || prev.city || 'Pune',
-        pincode: currentUser.defaultPincode || prev.pincode || '411001'
+        pincode: currentUser.defaultPincode || prev.pincode || '411001',
       }));
     }
   }, [currentUser]);
 
   if (!isOpen) return null;
 
-  const subtotal = cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const subtotal = cart.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const afterDiscount = Math.max(0, subtotal - discount);
   const shippingFee = afterDiscount >= freeShipThreshold || subtotal === 0 ? 0 : stdShipFee;
@@ -84,46 +58,27 @@ export default function CartDrawer({
     try {
       const res = await api.validateCoupon(codeStr, subtotal);
       setAppliedCoupon(res);
-      onNotify(`Offer ${res.code} applied! Saved ₹${res.discount}`);
+      onNotify(`Code ${res.code} — saved ₹${res.discount} 🎁`);
     } catch (err) {
       setAppliedCoupon(null);
       setCouponError(err.message);
     }
   };
-
-  const handleApplyCoupon = (e) => {
-    e.preventDefault();
-    if (!couponInput.trim()) return;
-    applyCodeDirectly(couponInput.trim());
-  };
+  const handleApplyCoupon = (e) => { e.preventDefault(); if (!couponInput.trim()) return; applyCodeDirectly(couponInput.trim()); };
 
   const finalizeRazorpayVerification = async (verificationPayload) => {
     try {
-      const { order } = await api.verifyRazorpayAndPlace({
-        ...verificationPayload,
-        ...customer,
-        couponCode: appliedCoupon?.code || '',
-        items: cart
-      });
-      setRzpSession(null);
-      setPlacedOrder(order);
-      setStep('success');
-      onClearCart();
-      setAppliedCoupon(null);
-      onNotify(`Razorpay Payment Successful! Order ${order.orderNumber} confirmed 🌿`);
-    } catch (err) {
-      setRzpSession(null);
-      onNotify(err.message);
-    }
+      const { order } = await api.verifyRazorpayAndPlace({ ...verificationPayload, ...customer, couponCode: appliedCoupon?.code || '', items: cart });
+      setRzpSession(null); setPlacedOrder(order); setStep('success'); onClearCart(); setAppliedCoupon(null);
+      onNotify(`Payment verified — Order ${order.orderNumber} confirmed 🌿`);
+    } catch (err) { setRzpSession(null); onNotify(err.message); }
   };
 
   const handlePlaceOrder = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+    e.preventDefault(); setSubmitting(true);
     try {
       if (customer.paymentMethod === 'RAZORPAY') {
         const orderSession = await api.createRazorpayOrder(cart, appliedCoupon?.code || '');
-
         if (orderSession.mode === 'live') {
           const loaded = await loadRazorpaySdk();
           if (loaded && window.Razorpay) {
@@ -131,320 +86,139 @@ export default function CartDrawer({
               key: orderSession.keyId,
               amount: orderSession.amountPaise,
               currency: orderSession.currency || 'INR',
-              name: 'Greenzo.in',
-              description: 'Self-Watering Indoor Plants',
+              name: 'Greenzo.in — Botanical Atelier',
+              description: 'Atelier Indoor Plants',
               order_id: orderSession.razorpayOrderId,
-              prefill: {
-                name: customer.customerName,
-                email: customer.customerEmail,
-                contact: customer.customerPhone
-              },
-              theme: { color: '#152A1E' },
+              prefill: { name: customer.customerName, email: customer.customerEmail, contact: customer.customerPhone },
+              theme: { color: '#0A1A12' },
               handler: async (response) => {
-                await finalizeRazorpayVerification({
-                  mode: 'live',
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpayPaymentId: response.razorpay_payment_id,
-                  razorpaySignature: response.razorpay_signature,
-                  sandboxMethod: 'Online'
-                });
-              }
+                await finalizeRazorpayVerification({ mode: 'live', razorpayOrderId: response.razorpay_order_id, razorpayPaymentId: response.razorpay_payment_id, razorpaySignature: response.razorpay_signature, sandboxMethod: 'Online' });
+              },
             });
-            rzp.open();
-            setSubmitting(false);
-            return;
+            rzp.open(); setSubmitting(false); return;
           }
         }
-
-        // Open built-in Razorpay Secure Checkout Modal
-        setRzpSession(orderSession);
-        setSubmitting(false);
-        return;
+        setRzpSession(orderSession); setSubmitting(false); return;
       }
-
-      // Cash on Delivery Flow
-      const { order } = await api.createOrder({
-        ...customer,
-        paymentMethod: 'COD',
-        couponCode: appliedCoupon?.code || '',
-        items: cart
-      });
-      setPlacedOrder(order);
-      setStep('success');
-      onClearCart();
-      setAppliedCoupon(null);
-      onNotify(`Order ${order.orderNumber} confirmed! 🌿`);
-    } catch (err) {
-      onNotify(err.message);
-    } finally {
-      setSubmitting(false);
-    }
+      const { order } = await api.createOrder({ ...customer, paymentMethod: 'COD', couponCode: appliedCoupon?.code || '', items: cart });
+      setPlacedOrder(order); setStep('success'); onClearCart(); setAppliedCoupon(null);
+      onNotify(`Order ${order.orderNumber} confirmed 🌿`);
+    } catch (err) { onNotify(err.message); } finally { setSubmitting(false); }
   };
 
-  const resetAndClose = () => {
-    if (step === 'success') setStep('cart');
-    onClose();
-  };
+  const resetAndClose = () => { if (step === 'success') setStep('cart'); onClose(); };
 
   return (
     <>
       <div className="fixed inset-0 z-50 flex justify-end">
-        <div
-          onClick={resetAndClose}
-          className="absolute inset-0 bg-canopy-950/60 backdrop-blur-sm"
-        />
-
-        <div className="relative w-full max-w-[465px] h-full bg-linen-50 shadow-2xl flex flex-col">
-          {/* Drawer Header */}
-          <div className="px-6 py-4 bg-white border-b border-canopy-900/10 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+        <div onClick={resetAndClose} className="absolute inset-0 bg-canopy-950/45 backdrop-blur-sm" />
+        <div className="relative w-full max-w-[480px] h-full bg-white shadow-elevated flex flex-col border-l border-stone-100">
+          {/* Header — minimal */}
+          <div className="px-6 py-5 border-b border-stone-100 flex items-center justify-between bg-white">
+            <div className="flex items-center gap-3">
               {step === 'checkout' && (
-                <button
-                  onClick={() => setStep('cart')}
-                  className="w-8 h-8 rounded-full bg-linen-100 flex items-center justify-center mr-1"
-                >
+                <button onClick={() => setStep('cart')} className="w-8 h-8 rounded-full bg-stone-50 border border-stone-100 flex items-center justify-center hover:bg-white transition">
                   <ArrowLeft className="w-4 h-4" />
                 </button>
               )}
-              <h3 className="font-serif text-2xl font-semibold text-canopy-950">
-                {step === 'cart'
-                  ? `Your Plant Bag (${cart.reduce((a, b) => a + b.quantity, 0)})`
-                  : step === 'checkout'
-                  ? 'Delivery & Razorpay Payment'
-                  : 'Order Confirmed'}
+              <h3 className="font-serif text-[22px] font-semibold tracking-tight text-canopy-950">
+                {step === 'cart' ? `Bag — ${cart.reduce((a, b) => a + b.quantity, 0)} items` : step === 'checkout' ? 'Delivery Details' : 'Order Confirmed'}
               </h3>
             </div>
-            <button
-              onClick={resetAndClose}
-              className="w-9 h-9 rounded-full bg-linen-100 hover:bg-linen-200 flex items-center justify-center"
-            >
+            <button onClick={resetAndClose} className="w-9 h-9 rounded-full bg-stone-50 hover:bg-white border border-stone-100 flex items-center justify-center text-stone-600 transition">
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Free Shipping Progress Strip */}
           {step === 'cart' && cart.length > 0 && (
-            <div className="px-6 py-2.5 bg-emerald-950 text-emerald-100 text-xs flex items-center justify-between gap-3">
-              <span className="flex items-center gap-1.5 font-medium">
-                <Truck className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-                {freeShipRemaining === 0
-                  ? '🎉 You unlocked FREE Eco-Safe Express Shipping!'
-                  : `Add ₹${freeShipRemaining} more for FREE Shipping`}
+            <div className="px-6 py-3 bg-canopy-950 text-white text-xs flex items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-2">
+                <span className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center"><Truck className="w-3.5 h-3.5 text-emerald-300" /></span>
+                {freeShipRemaining === 0 ? 'Free eco-safe shipping unlocked!' : `Add ₹${freeShipRemaining} for free shipping`}
               </span>
+              <span className="text-white/60 hidden sm:inline">Carbon-neutral • Pan-India</span>
             </div>
           )}
 
-          {/* Body */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 bg-linen-50">
             {step === 'success' && placedOrder ? (
-              <div className="bg-white rounded-3xl p-6 border border-canopy-900/10 shadow-sm text-center space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto">
+              <div className="bg-white rounded-[24px] p-6 border border-stone-100 shadow-soft text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-700">
-                    {placedOrder.paymentStatus === 'PAID'
-                      ? '✓ Razorpay Verified Payment'
-                      : 'Confirmed • Cash on Delivery'}
+                  <span className="text-[11px] font-bold tracking-[0.16em] uppercase text-emerald-700">
+                    {placedOrder.paymentStatus === 'PAID' ? '✓ Verified Payment' : 'Confirmed — Cash on Delivery'}
                   </span>
-                  <h4 className="font-serif text-3xl font-semibold text-canopy-950 mt-1">
-                    Thank You, {placedOrder.customerName}!
-                  </h4>
-                  <p className="text-xs text-canopy-700 mt-1">
-                    Order ID:{' '}
-                    <strong className="font-mono text-canopy-950 bg-linen-100 px-2 py-0.5 rounded">
-                      {placedOrder.orderNumber}
-                    </strong>
-                  </p>
+                  <h4 className="font-serif text-[28px] font-semibold text-canopy-950 mt-1">Thank you, {placedOrder.customerName}</h4>
+                  <p className="text-xs text-stone-500 mt-1">Order <strong className="font-mono text-canopy-950 bg-stone-50 border border-stone-100 px-2 py-1 rounded-full">{placedOrder.orderNumber}</strong></p>
                 </div>
-
-                <div className="p-4 rounded-2xl bg-linen-50 text-left text-xs space-y-2 border border-canopy-900/8">
-                  <div className="flex justify-between">
-                    <span className="text-canopy-700">Dispatch Estimate</span>
-                    <span className="font-semibold text-canopy-950">
-                      {placedOrder.estimatedDelivery}
-                    </span>
-                  </div>
-                  {placedOrder.razorpayPaymentId && (
-                    <div className="flex justify-between">
-                      <span className="text-canopy-700">Razorpay Payment ID</span>
-                      <span className="font-mono font-semibold text-emerald-800">
-                        {placedOrder.razorpayPaymentId}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-canopy-700">Delivery City</span>
-                    <span className="font-semibold text-canopy-950">
-                      {placedOrder.city} ({placedOrder.pincode})
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-1 border-t border-canopy-900/10">
-                    <span className="text-canopy-700">
-                      {placedOrder.paymentStatus === 'PAID' ? 'Amount Paid' : 'Amount Payable'}
-                    </span>
-                    <span className="font-bold text-canopy-950 text-sm">
-                      ₹{placedOrder.totalAmount}
-                    </span>
-                  </div>
+                <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100 text-left text-xs space-y-2">
+                  <div className="flex justify-between"><span className="text-stone-500">Delivery Estimate</span><span className="font-semibold text-canopy-950">{placedOrder.estimatedDelivery}</span></div>
+                  {placedOrder.razorpayPaymentId && <div className="flex justify-between"><span className="text-stone-500">Payment ID</span><span className="font-mono font-semibold text-emerald-700">{placedOrder.razorpayPaymentId}</span></div>}
+                  <div className="flex justify-between"><span className="text-stone-500">City</span><span className="font-semibold text-canopy-950">{placedOrder.city} ({placedOrder.pincode})</span></div>
+                  <div className="flex justify-between pt-2 border-t border-stone-200"><span className="text-stone-500">{placedOrder.paymentStatus === 'PAID' ? 'Paid' : 'Payable'}</span><span className="font-bold text-canopy-950">₹{placedOrder.totalAmount}</span></div>
                 </div>
-
-                <a
-                  href={`https://wa.me/${
-                    storeConfig.whatsappNumber || '918883639639'
-                  }?text=${encodeURIComponent(
-                    `Hi Greenzo! Sharing my order confirmation ${placedOrder.orderNumber} (₹${placedOrder.totalAmount}) for ${placedOrder.city}.`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full h-11 rounded-full bg-[#1FAF54] text-white text-xs font-semibold flex items-center justify-center gap-2"
-                >
-                  Share Order on WhatsApp for Live Photo Before Dispatch
+                <a href={`https://wa.me/${storeConfig.whatsappNumber || '918883639639'}?text=${encodeURIComponent(`Hi Greenzo! Order ${placedOrder.orderNumber} (₹${placedOrder.totalAmount}) for ${placedOrder.city}.`)}`} target="_blank" rel="noreferrer" className="w-full h-11 rounded-full bg-[#1FAF54] hover:bg-[#199947] text-white text-xs font-semibold flex items-center justify-center gap-2">
+                  Share on WhatsApp for Live Photo Before Dispatch
                 </a>
-
-                <button
-                  onClick={resetAndClose}
-                  className="w-full h-11 rounded-full bg-canopy-900 text-white text-xs font-semibold"
-                >
-                  Continue Exploring Sanctuary
-                </button>
+                <button onClick={resetAndClose} className="w-full h-11 rounded-full bg-canopy-950 text-white text-xs font-semibold">Continue Exploring</button>
               </div>
             ) : step === 'checkout' ? (
               <form id="checkoutForm" onSubmit={handlePlaceOrder} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-canopy-800 mb-1">
-                    Full Name *
-                  </label>
-                  <input
-                    required
-                    value={customer.customerName}
-                    onChange={(e) => setCustomer({ ...customer, customerName: e.target.value })}
-                    placeholder="Priya Kulkarni"
-                    className="w-full h-10 px-3.5 rounded-xl bg-white border border-canopy-900/15 text-sm"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-[18px] bg-white border border-stone-100 p-5 space-y-4 shadow-soft">
                   <div>
-                    <label className="block text-xs font-semibold text-canopy-800 mb-1">
-                      Phone / WhatsApp *
-                    </label>
-                    <input
-                      required
-                      value={customer.customerPhone}
-                      onChange={(e) => setCustomer({ ...customer, customerPhone: e.target.value })}
-                      placeholder="+91 98XXXXXXXX"
-                      className="w-full h-10 px-3.5 rounded-xl bg-white border border-canopy-900/15 text-sm"
-                    />
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">Full Name *</label>
+                    <input required value={customer.customerName} onChange={(e) => setCustomer({ ...customer, customerName: e.target.value })} placeholder="Priya Kulkarni" className="w-full h-11 px-3.5 rounded-xl bg-stone-50 border border-stone-100 text-sm focus:bg-white focus:border-canopy-900/20 focus:ring-4 focus:ring-canopy-900/5 outline-none transition" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">Phone *</label>
+                      <input required value={customer.customerPhone} onChange={(e) => setCustomer({ ...customer, customerPhone: e.target.value })} placeholder="+91 98XXXXXXXX" className="w-full h-11 px-3.5 rounded-xl bg-stone-50 border border-stone-100 text-sm focus:bg-white focus:border-canopy-900/20 focus:ring-4 focus:ring-canopy-900/5 outline-none transition" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">Email</label>
+                      <input type="email" value={customer.customerEmail} onChange={(e) => setCustomer({ ...customer, customerEmail: e.target.value })} placeholder="you@email.com" className="w-full h-11 px-3.5 rounded-xl bg-stone-50 border border-stone-100 text-sm focus:bg-white focus:border-canopy-900/20 focus:ring-4 focus:ring-canopy-900/5 outline-none transition" />
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-canopy-800 mb-1">Email</label>
-                    <input
-                      type="email"
-                      value={customer.customerEmail}
-                      onChange={(e) => setCustomer({ ...customer, customerEmail: e.target.value })}
-                      placeholder="priya@email.com"
-                      className="w-full h-10 px-3.5 rounded-xl bg-white border border-canopy-900/15 text-sm"
-                    />
+                    <label className="block text-xs font-semibold text-stone-700 mb-1.5">Delivery Address *</label>
+                    <textarea required rows={2} value={customer.shippingAddress} onChange={(e) => setCustomer({ ...customer, shippingAddress: e.target.value })} placeholder="Flat / Society, Landmark, Road…" className="w-full p-3.5 rounded-xl bg-stone-50 border border-stone-100 text-sm focus:bg-white focus:border-canopy-900/20 focus:ring-4 focus:ring-canopy-900/5 outline-none transition" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">City *</label>
+                      <input required value={customer.city} onChange={(e) => setCustomer({ ...customer, city: e.target.value })} className="w-full h-11 px-3.5 rounded-xl bg-stone-50 border border-stone-100 text-sm focus:bg-white focus:border-canopy-900/20 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5">Pincode *</label>
+                      <input required value={customer.pincode} onChange={(e) => setCustomer({ ...customer, pincode: e.target.value })} className="w-full h-11 px-3.5 rounded-xl bg-stone-50 border border-stone-100 text-sm focus:bg-white focus:border-canopy-900/20 outline-none" />
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-canopy-800 mb-1">
-                    Complete Delivery Address *
-                  </label>
-                  <textarea
-                    required
-                    rows={2}
-                    value={customer.shippingAddress}
-                    onChange={(e) => setCustomer({ ...customer, shippingAddress: e.target.value })}
-                    placeholder="Flat / Society, Landmark, Road..."
-                    className="w-full p-3 rounded-xl bg-white border border-canopy-900/15 text-sm"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-canopy-800 mb-1">
-                      City *
-                    </label>
-                    <input
-                      required
-                      value={customer.city}
-                      onChange={(e) => setCustomer({ ...customer, city: e.target.value })}
-                      className="w-full h-10 px-3.5 rounded-xl bg-white border border-canopy-900/15 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-canopy-800 mb-1">
-                      Pincode *
-                    </label>
-                    <input
-                      required
-                      value={customer.pincode}
-                      onChange={(e) => setCustomer({ ...customer, pincode: e.target.value })}
-                      className="w-full h-10 px-3.5 rounded-xl bg-white border border-canopy-900/15 text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Payment Method Selector: Razorpay Online vs COD */}
-                <div>
-                  <label className="block text-xs font-semibold text-canopy-800 mb-2">
-                    Select Payment Method
-                  </label>
+                <div className="rounded-[18px] bg-white border border-stone-100 p-5 space-y-3 shadow-soft">
+                  <label className="block text-[11px] font-bold tracking-[0.12em] uppercase text-stone-600">Payment Method</label>
                   <div className="space-y-2.5">
                     {razorpayEnabled && (
-                      <button
-                        type="button"
-                        onClick={() => setCustomer({ ...customer, paymentMethod: 'RAZORPAY' })}
-                        className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition ${
-                          customer.paymentMethod === 'RAZORPAY'
-                            ? 'bg-blue-50/70 border-[#1967D2] ring-1 ring-[#1967D2]'
-                            : 'bg-white border-canopy-900/15'
-                        }`}
-                      >
+                      <button type="button" onClick={() => setCustomer({ ...customer, paymentMethod: 'RAZORPAY' })} className={`w-full p-4 rounded-2xl border text-left flex items-center justify-between transition ${customer.paymentMethod === 'RAZORPAY' ? 'bg-blue-50/60 border-[#1967D2] ring-1 ring-[#1967D2]' : 'bg-white border-stone-100 hover:border-stone-200'}`}>
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#0B2239] text-white flex items-center justify-center shrink-0">
-                            <CreditCard className="w-4 h-4 text-blue-300" />
-                          </div>
+                          <span className="w-10 h-10 rounded-xl bg-[#0B2239] text-white flex items-center justify-center"><CreditCard className="w-4 h-4 text-blue-300" /></span>
                           <div>
-                            <p className="text-xs font-bold text-canopy-950 flex items-center gap-1.5">
-                              <span>Pay Online via Razorpay</span>
-                              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 text-[10px]">
-                                Instant
-                              </span>
-                            </p>
-                            <p className="text-[11px] text-canopy-700/75">
-                              UPI (GPay, PhonePe, Paytm), Cards, Netbanking & Wallets
-                            </p>
+                            <p className="text-sm font-semibold text-canopy-950">Pay Online — Razorpay <span className="ml-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100 text-[10px]">Instant</span></p>
+                            <p className="text-[11px] text-stone-500">UPI • Cards • Netbanking • Wallets</p>
                           </div>
                         </div>
-                        <ShieldCheck className="w-4 h-4 text-[#1967D2] shrink-0" />
+                        <ShieldCheck className="w-4 h-4 text-[#1967D2]" />
                       </button>
                     )}
-
                     {codEnabled && (
-                      <button
-                        type="button"
-                        onClick={() => setCustomer({ ...customer, paymentMethod: 'COD' })}
-                        className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition ${
-                          customer.paymentMethod === 'COD'
-                            ? 'bg-linen-100 border-canopy-900 ring-1 ring-canopy-900'
-                            : 'bg-white border-canopy-900/15'
-                        }`}
-                      >
+                      <button type="button" onClick={() => setCustomer({ ...customer, paymentMethod: 'COD' })} className={`w-full p-4 rounded-2xl border text-left flex items-center justify-between transition ${customer.paymentMethod === 'COD' ? 'bg-stone-50 border-canopy-950 ring-1 ring-canopy-950' : 'bg-white border-stone-100 hover:border-stone-200'}`}>
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-linen-200 text-canopy-900 flex items-center justify-center shrink-0">
-                            <Banknote className="w-4 h-4" />
-                          </div>
+                          <span className="w-10 h-10 rounded-xl bg-stone-100 text-canopy-900 flex items-center justify-center"><Banknote className="w-4 h-4" /></span>
                           <div>
-                            <p className="text-xs font-bold text-canopy-950">
-                              Cash on Delivery (COD)
-                            </p>
-                            <p className="text-[11px] text-canopy-700/75">
-                              Pay by cash or doorstep UPI scan when plants arrive
-                            </p>
+                            <p className="text-sm font-semibold text-canopy-950">Cash on Delivery</p>
+                            <p className="text-[11px] text-stone-500">Pay on delivery — cash or UPI scan</p>
                           </div>
                         </div>
                       </button>
@@ -453,206 +227,82 @@ export default function CartDrawer({
                 </div>
               </form>
             ) : cart.length === 0 ? (
-              <div className="text-center py-14 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-white border border-canopy-900/10 flex items-center justify-center mx-auto text-canopy-700">
-                  <ShoppingBag className="w-7 h-7" />
-                </div>
-                <div>
-                  <p className="font-serif text-2xl font-semibold text-canopy-950">
-                    Your plant bag is empty
-                  </p>
-                  <p className="text-xs text-canopy-700/75 mt-1">
-                    Start with our signature Self-Watering Box @ ₹{comboPrice}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    onClose();
-                    onOpenBundle();
-                  }}
-                  className="px-6 py-3 rounded-full bg-canopy-900 text-white text-xs font-semibold inline-flex items-center gap-2"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Build Combo Box @ ₹{comboPrice}</span>
-                </button>
+              <div className="text-center py-16 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-white border border-stone-100 flex items-center justify-center mx-auto shadow-soft"><ShoppingBag className="w-7 h-7 text-stone-500" /></div>
+                <p className="font-serif text-2xl font-semibold text-canopy-950">Your bag is empty</p>
+                <p className="text-xs text-stone-500">Begin with the atelier signature — 4 plants @ ₹{comboPrice}</p>
+                <button onClick={() => { onClose(); onOpenBundle(); }} className="h-11 px-6 rounded-full bg-canopy-950 text-white text-xs font-semibold inline-flex items-center gap-2 shadow-soft"><Sparkles className="w-3.5 h-3.5 text-emerald-300" /> Build Box — ₹{comboPrice}</button>
               </div>
             ) : (
               <div className="space-y-4">
                 {cart.map((item) => (
-                  <div
-                    key={item.key}
-                    className="bg-white rounded-2xl p-3.5 border border-canopy-900/8 flex gap-3.5 shadow-sm"
-                  >
-                    <img
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      className="w-16 h-16 rounded-xl object-cover shrink-0 bg-linen-100"
-                    />
+                  <div key={item.key} className="bg-white rounded-[16px] p-4 border border-stone-100 flex gap-4 shadow-soft">
+                    <img src={item.imageUrl} alt={item.productName} className="w-16 h-16 rounded-xl object-cover shrink-0 bg-stone-50 border border-stone-100" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-sm font-semibold text-canopy-950 leading-snug">
-                          {item.productName}
-                        </h4>
-                        <button
-                          onClick={() => onRemoveItem(item.key)}
-                          className="text-canopy-700/50 hover:text-red-600 transition shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <h4 className="text-sm font-semibold text-canopy-950 leading-snug line-clamp-2">{item.productName}</h4>
+                        <button onClick={() => onRemoveItem(item.key)} className="text-stone-400 hover:text-red-600 transition"><Trash2 className="w-4 h-4" /></button>
                       </div>
-                      <p className="text-[11px] text-canopy-700/75 mt-0.5">
-                        {item.potColor} • {item.potSize}
-                      </p>
-                      {item.isBundle && item.bundleItems?.length > 0 && (
-                        <p className="text-[10.5px] text-emerald-800 bg-emerald-50 rounded px-2 py-0.5 mt-1 line-clamp-2">
-                          Includes: {item.bundleItems.join(', ')}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between mt-2.5">
-                        <div className="inline-flex items-center border border-canopy-900/15 rounded-lg h-7">
-                          <button
-                            onClick={() => onUpdateQty(item.key, item.quantity - 1)}
-                            className="w-6 text-xs font-bold"
-                          >
-                            −
-                          </button>
-                          <span className="w-6 text-center text-xs font-semibold">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => onUpdateQty(item.key, item.quantity + 1)}
-                            className="w-6 text-xs font-bold"
-                          >
-                            +
-                          </button>
+                      <p className="text-[11px] text-stone-500 mt-1">{item.potColor} • {item.potSize}</p>
+                      {item.isBundle && item.bundleItems?.length > 0 && <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 mt-1.5 inline-block">Includes: {item.bundleItems.join(', ')}</p>}
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="inline-flex items-center border border-stone-200 rounded-full h-8 bg-stone-50">
+                          <button onClick={() => onUpdateQty(item.key, item.quantity - 1)} className="w-7 h-7 rounded-full hover:bg-white flex items-center justify-center text-xs font-bold">−</button>
+                          <span className="w-7 text-center text-xs font-semibold">{item.quantity}</span>
+                          <button onClick={() => onUpdateQty(item.key, item.quantity + 1)} className="w-7 h-7 rounded-full hover:bg-white flex items-center justify-center text-xs font-bold">+</button>
                         </div>
-                        <span className="text-sm font-bold text-canopy-950">
-                          ₹{item.unitPrice * item.quantity}
-                        </span>
+                        <span className="text-sm font-bold text-canopy-950">₹{item.unitPrice * item.quantity}</span>
                       </div>
                     </div>
                   </div>
                 ))}
-
-                {/* Promo Code Input + 1-Click Available Offers */}
-                <form
-                  onSubmit={handleApplyCoupon}
-                  className="bg-white rounded-2xl p-3.5 border border-canopy-900/8 space-y-2.5"
-                >
+                <form onSubmit={handleApplyCoupon} className="bg-white rounded-[16px] p-4 border border-stone-100 shadow-soft space-y-3">
                   <div className="flex gap-2">
                     <div className="relative flex-1">
-                      <Tag className="w-3.5 h-3.5 text-canopy-700/60 absolute left-3 top-3" />
-                      <input
-                        value={couponInput}
-                        onChange={(e) => setCouponInput(e.target.value)}
-                        placeholder="Enter Promo Code"
-                        className="w-full h-9 pl-8 pr-3 rounded-lg bg-linen-50 border border-canopy-900/10 text-xs uppercase font-semibold"
-                      />
+                      <Tag className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-3.5" />
+                      <input value={couponInput} onChange={(e) => setCouponInput(e.target.value)} placeholder="Promo code" className="w-full h-10 pl-9 pr-3 rounded-full bg-stone-50 border border-stone-100 text-xs font-semibold uppercase focus:bg-white focus:border-canopy-900/20 outline-none" />
                     </div>
-                    <button
-                      type="submit"
-                      className="px-4 h-9 rounded-lg bg-canopy-900 text-white text-xs font-semibold"
-                    >
-                      Apply
-                    </button>
+                    <button type="submit" className="px-5 h-10 rounded-full bg-canopy-950 text-white text-xs font-semibold hover:bg-black transition">Apply</button>
                   </div>
-
                   {activeOffers.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    <div className="flex flex-wrap gap-1.5">
                       {activeOffers.slice(0, 3).map((off) => (
-                        <button
-                          type="button"
-                          key={off.code}
-                          onClick={() => applyCodeDirectly(off.code)}
-                          className="px-2.5 py-1 rounded-lg bg-linen-50 hover:bg-emerald-50 border border-canopy-900/10 text-[10.5px] font-semibold text-canopy-900 transition"
-                        >
-                          Tap: <strong className="font-mono">{off.code}</strong> ({off.label})
+                        <button type="button" key={off.code} onClick={() => applyCodeDirectly(off.code)} className="px-3 py-1.5 rounded-full bg-stone-50 hover:bg-emerald-50 border border-stone-100 text-[11px] font-semibold text-canopy-900">
+                          Tap: <strong className="font-mono">{off.code}</strong> • {off.label}
                         </button>
                       ))}
                     </div>
                   )}
-
-                  {appliedCoupon && (
-                    <p className="text-[11px] text-emerald-700 font-semibold">
-                      ✓ {appliedCoupon.code} applied (Saved ₹{appliedCoupon.discount})
-                    </p>
-                  )}
-                  {couponError && <p className="text-[11px] text-red-600">{couponError}</p>}
+                  {appliedCoupon && <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1"><Leaf className="w-3 h-3" /> {appliedCoupon.code} — saved ₹{appliedCoupon.discount}</p>}
+                  {couponError && <p className="text-xs text-red-600">{couponError}</p>}
                 </form>
               </div>
             )}
           </div>
 
-          {/* Sticky Checkout Summary Footer */}
           {cart.length > 0 && step !== 'success' && (
-            <div className="p-6 bg-white border-t border-canopy-900/10 space-y-3">
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between text-canopy-800/80">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-semibold">
-                    <span>Promo Discount</span>
-                    <span>−₹{discount}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-canopy-800/80">
-                  <span>Eco-Safe Shipping</span>
-                  <span className={shippingFee === 0 ? 'text-emerald-700 font-semibold' : ''}>
-                    {shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}
-                  </span>
-                </div>
-                <div className="flex justify-between text-base font-bold text-canopy-950 pt-2 border-t border-canopy-900/10">
-                  <span>Total</span>
-                  <span>₹{grandTotal}</span>
-                </div>
+            <div className="p-6 bg-white border-t border-stone-100 space-y-4">
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between text-stone-600"><span>Subtotal</span><span>₹{subtotal}</span></div>
+                {discount > 0 && <div className="flex justify-between text-emerald-700 font-semibold"><span>Promo</span><span>−₹{discount}</span></div>}
+                <div className="flex justify-between text-stone-600"><span>Shipping</span><span className={shippingFee === 0 ? 'text-emerald-700 font-semibold' : ''}>{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span></div>
+                <div className="flex justify-between text-[16px] font-bold text-canopy-950 pt-3 border-t border-stone-100"><span>Total</span><span>₹{grandTotal}</span></div>
               </div>
-
               {step === 'cart' ? (
-                <button
-                  onClick={() => setStep('checkout')}
-                  className="w-full h-12 rounded-full bg-canopy-900 hover:bg-canopy-950 text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-95"
-                >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="w-4 h-4" />
+                <button onClick={() => setStep('checkout')} className="w-full h-12 rounded-full bg-canopy-950 hover:bg-black text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-soft active:scale-95">
+                  Proceed to Checkout <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
-                <button
-                  type="submit"
-                  form="checkoutForm"
-                  disabled={submitting}
-                  className={`w-full h-12 rounded-full text-white text-sm font-semibold flex items-center justify-center gap-2 transition active:scale-95 ${
-                    customer.paymentMethod === 'RAZORPAY'
-                      ? 'bg-[#1967D2] hover:bg-[#1353AB]'
-                      : 'bg-canopy-900 hover:bg-canopy-950'
-                  }`}
-                >
-                  <span>
-                    {submitting
-                      ? 'Initializing...'
-                      : customer.paymentMethod === 'RAZORPAY'
-                      ? `Pay ₹${grandTotal} with Razorpay`
-                      : `Place COD Order • ₹${grandTotal}`}
-                  </span>
-                  <ArrowRight className="w-4 h-4" />
+                <button type="submit" form="checkoutForm" disabled={submitting} className={`w-full h-12 rounded-full text-white text-sm font-semibold flex items-center justify-center gap-2 transition shadow-soft active:scale-95 ${customer.paymentMethod === 'RAZORPAY' ? 'bg-[#1967D2] hover:bg-[#1353AB]' : 'bg-canopy-950 hover:bg-black'}`}>
+                  {submitting ? 'Processing…' : customer.paymentMethod === 'RAZORPAY' ? `Pay ₹${grandTotal} via Razorpay` : `Place COD Order • ₹${grandTotal}`} <ArrowRight className="w-4 h-4" />
                 </button>
               )}
+              <p className="text-[11px] text-center text-stone-500 flex items-center justify-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Secure checkout • 7-Day replacement • WhatsApp support</p>
             </div>
           )}
         </div>
       </div>
-
-      {/* Interactive Razorpay Checkout Gateway Modal */}
-      {rzpSession && (
-        <RazorpayGatewayModal
-          session={rzpSession}
-          customer={customer}
-          onSuccess={finalizeRazorpayVerification}
-          onCancel={() => setRzpSession(null)}
-        />
-      )}
+      {rzpSession && <RazorpayGatewayModal session={rzpSession} customer={customer} onSuccess={finalizeRazorpayVerification} onCancel={() => setRzpSession(null)} />}
     </>
   );
 }

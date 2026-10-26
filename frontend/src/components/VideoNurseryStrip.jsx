@@ -1,37 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Droplets, SunMedium, PackageCheck, Sparkles } from 'lucide-react';
+import { Droplets, SunMedium, PackageCheck, Sparkles, ArrowUpRight } from 'lucide-react';
 
 const STUDIO_STORIES = [
   {
     id: 'wick',
-    tag: '01 • Hydro-Wick Engineering',
-    title: '14-Day Self-Watering Reservoir',
-    description:
-      'A braided natural cotton wick draws exact moisture from the lower chamber only when roots need it—preventing root rot and weekend dry-out.',
+    tag: '01 — Hydro-Wick Atelier',
+    title: '14-Day Capillary Reservoir',
+    description: 'Braided cotton wick feeds roots only when needed — no rot, no dry-outs, no weekly guesswork.',
     videoUrl: '/videos/hero-sanctuary.mp4',
     posterUrl: '/images/hero-1.jpg',
-    icon: Droplets
+    icon: Droplets,
   },
   {
     id: 'nursery',
-    tag: '02 • Empire Agro, Theur Pune',
-    title: 'Shade-Hardened Before Dispatch',
-    description:
-      'Every plant spends 21 days in our indoor-light acclimatization bay in Pune so it never suffers shock when placed in your living room.',
+    tag: '02 — Theur Micro-Climate',
+    title: 'Shade-Hardened in Pune',
+    description: '21 days in our indoor-light bay so your plant never shocks when it enters your living room.',
     videoUrl: '/videos/hero-mist.mp4',
     posterUrl: '/images/hero-2.jpg',
-    icon: SunMedium
+    icon: SunMedium,
   },
   {
     id: 'packaging',
-    tag: '03 • Zero-Spill Transit',
-    title: 'Breathable Honeycomb Eco-Pods',
-    description:
-      'Recyclable ventilated sleeves lock the self-watering pot and coco-perlite crown firmly in place across Pune, Mumbai & pan-India.',
+    tag: '03 — Eco Transit',
+    title: 'Ventilated Honeycomb Pods',
+    description: 'Plastic-free kraft sleeves lock the pot & coco-perlite crown for pan-India transit.',
     videoUrl: '/videos/hero-workspace.mp4',
     posterUrl: '/images/hero-3.jpg',
-    icon: PackageCheck
-  }
+    icon: PackageCheck,
+  },
 ];
 
 export default function VideoNurseryStrip({ onOpenBundle }) {
@@ -42,33 +39,32 @@ export default function VideoNurseryStrip({ onOpenBundle }) {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.15 }
-    );
+    const obs = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.15 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section id="reels" ref={sectionRef} className="py-16 lg:py-20 bg-linen-100/70">
-      <div className="max-w-[1320px] mx-auto px-4 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-          <div>
-            <span className="text-canopy-600 text-[11px] font-bold tracking-[0.28em] uppercase">
-              Behind The Leaves • Video Showcase
-            </span>
-            <h2 className="font-serif text-[32px] lg:text-[42px] text-canopy-950 font-semibold leading-tight mt-2">
-              Why Greenzo Plants Stay Lush Effortlessly
+    <section id="reels" ref={sectionRef} className="py-16 lg:py-20 bg-linen-75 border-y border-stone-100">
+      <div className="max-w-[1360px] mx-auto px-5 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+          <div className="max-w-[680px]">
+            <div className="inline-flex items-center gap-2">
+              <span className="w-7 h-px bg-canopy-900/20" />
+              <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-canopy-700">Atelier Technology</span>
+              <span className="hidden sm:inline text-stone-300">—</span>
+              <span className="hidden sm:inline text-xs text-stone-500">Hydro-Wick • Acclimatization • Eco Pods</span>
+            </div>
+            <h2 className="mt-3 font-serif text-[32px] lg:text-[44px] leading-[0.95] tracking-[-0.02em] font-semibold text-canopy-950 text-balance">
+              Why Greenzo stays lush <span className="italic font-normal text-canopy-700">effortlessly.</span>
             </h2>
           </div>
-          <p className="text-[14px] text-canopy-800/75 max-w-md">
-            Hover or tap any studio reel below to inspect our self-watering planter system & Pune
-            greenhouse craft.
+          <p className="text-[14px] leading-relaxed text-stone-600 max-w-md">
+            Hover to play each atelier reel — from wick engineering to shade-hardening and carbon-neutral packaging.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
           {STUDIO_STORIES.map((story) => {
             const Icon = story.icon;
             const isActive = activeCard === story.id;
@@ -77,77 +73,61 @@ export default function VideoNurseryStrip({ onOpenBundle }) {
                 key={story.id}
                 onMouseEnter={() => setActiveCard(story.id)}
                 onClick={() => setActiveCard(story.id)}
-                className={`group rounded-3xl overflow-hidden bg-white border transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? 'border-canopy-800 shadow-elevated -translate-y-1'
-                    : 'border-canopy-900/10 shadow-soft'
+                className={`group relative overflow-hidden rounded-[22px] bg-white border transition-all duration-300 cursor-pointer ${
+                  isActive ? 'border-canopy-900 shadow-elevated -translate-y-1' : 'border-stone-100 shadow-soft hover:shadow-soft-lg hover:-translate-y-0.5'
                 }`}
               >
-                <div className="relative aspect-[16/10] bg-canopy-950 overflow-hidden">
+                <div className="relative aspect-[16/10.5] bg-canopy-950 overflow-hidden">
                   {visible && isActive ? (
-                    <video
-                      src={story.videoUrl}
-                      poster={story.posterUrl}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
+                    <video src={story.videoUrl} poster={story.posterUrl} autoPlay muted loop playsInline className="w-full h-full object-cover" />
                   ) : (
-                    <img
-                      src={story.posterUrl}
-                      alt={story.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    <img src={story.posterUrl} alt={story.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10.5px] font-semibold">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur text-canopy-950 text-[11px] font-semibold border border-white/60">
                     {story.tag}
                   </span>
-                  {isActive && (
-                    <span className="absolute bottom-3 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-canopy-950 text-[10px] font-bold">
-                      ● Live Reel
-                    </span>
-                  )}
+                  <span className={`absolute bottom-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide flex items-center gap-1.5 transition ${isActive ? 'bg-emerald-500 text-white' : 'bg-black/45 backdrop-blur text-white border border-white/20'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white animate-pulse' : 'bg-emerald-400'}`} /> {isActive ? 'PLAYING' : 'HOVER TO PLAY'}
+                  </span>
+                  <div className="absolute inset-0 rounded-[22px] ring-1 ring-white/10 pointer-events-none" />
                 </div>
 
                 <div className="p-6">
-                  <div className="w-10 h-10 rounded-xl bg-canopy-50 text-canopy-800 flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-canopy-50 border border-canopy-900/5 text-canopy-800 flex items-center justify-center">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="font-serif text-[22px] font-semibold text-canopy-950">
-                    {story.title}
-                  </h3>
-                  <p className="text-[13.5px] text-canopy-800/75 leading-relaxed mt-2">
-                    {story.description}
-                  </p>
+                  <h3 className="mt-3 font-serif text-[20px] font-semibold leading-tight text-canopy-950">{story.title}</h3>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-stone-600">{story.description}</p>
+                  <span className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold ${isActive ? 'text-canopy-900' : 'text-stone-500 group-hover:text-canopy-900'} transition`}>
+                    Learn more <ArrowUpRight className="w-3.5 h-3.5" />
+                  </span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Luxury Inline ₹999 Combo Banner */}
-        <div className="mt-12 rounded-3xl bg-canopy-950 text-white p-6 sm:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6 shadow-elevated">
-          <div className="space-y-2 text-center lg:text-left">
-            <span className="inline-flex items-center gap-1.5 text-emerald-300 text-xs font-semibold uppercase tracking-widest">
-              <Sparkles className="w-3.5 h-3.5" /> Client Favourite Bundle
+        {/* ——— Atelier Bundle Banner — luxury, calm ——— */}
+        <div className="mt-10 rounded-[24px] bg-canopy-950 text-white p-6 sm:p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6 shadow-elevated overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-transparent pointer-events-none" />
+          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+          <div className="relative space-y-3 text-center lg:text-left">
+            <span className="inline-flex items-center gap-1.5 text-emerald-300 text-[11px] font-bold tracking-[0.16em] uppercase">
+              <Sparkles className="w-3.5 h-3.5" /> Atelier Favourite — Limited Bay
             </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-medium">
-              Curate Any 4 Indoor Plants + 4 Self-Watering Pots for Just ₹999
+            <h3 className="font-serif text-2xl sm:text-[30px] font-medium leading-tight">
+              Curate any 4 plants + 4 hydro-wick pots — <span className="italic text-emerald-200">just ₹999</span>
             </h3>
-            <p className="text-sm text-linen-200/75 max-w-2xl">
-              Mix & match Zamia Green, Raven ZZ, Snake Plant, Peace Lily or Pink Syngonium in your
-              preferred matte pot colour with free doorstep delivery.
+            <p className="text-sm text-white/70 max-w-2xl leading-relaxed">
+              Mix Zamia, Monstera, Snake, Peace Lily or Syngonium in matte ivory / sage / terracotta / charcoal — free photo confirmation before dispatch.
             </p>
           </div>
           <button
             onClick={onOpenBundle}
-            className="h-12 px-7 rounded-full bg-white hover:bg-linen-100 text-canopy-950 font-semibold text-sm shrink-0 transition active:scale-95"
+            className="relative h-12 px-7 rounded-full bg-white hover:bg-linen-50 text-canopy-950 font-semibold text-sm shrink-0 inline-flex items-center gap-2 transition active:scale-95 shadow-soft"
           >
-            Launch 4-Plant Box Builder →
+            Launch Box Builder <ArrowUpRight className="w-4 h-4" />
           </button>
         </div>
       </div>
